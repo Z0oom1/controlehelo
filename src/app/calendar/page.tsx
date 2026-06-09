@@ -10,8 +10,10 @@ import {
   CreditCard, 
   Sparkles,
   CheckCircle,
-  X
+  X,
+  Plus
 } from 'lucide-react';
+import confetti from 'canvas-confetti';
 
 interface CalendarEvent {
   id: string;
@@ -30,7 +32,13 @@ export default function CalendarPage() {
     goals, 
     bankConnections,
     profile,
-    updateProfile
+    updateProfile,
+    addTransaction,
+    deleteTransaction,
+    updateTransaction,
+    payDebtInstallment,
+    deleteDebt,
+    deleteGoal
   } = useFinanceState();
 
   const [currentDate, setCurrentDate] = useState(new Date(2026, 5, 3)); // Fixed to June 2026 as current date
@@ -43,6 +51,22 @@ export default function CalendarPage() {
   const [salaryDayInput, setSalaryDayInput] = useState('');
   const [salaryError, setSalaryError] = useState('');
 
+  // Context Menu State
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    date: string;
+    event?: CalendarEvent;
+  } | null>(null);
+
+  // Quick Add State
+  const [showQuickAddModal, setShowQuickAddModal] = useState(false);
+  const [quickAddType, setQuickAddType] = useState<'income' | 'expense'>('expense');
+  const [quickAddDate, setQuickAddDate] = useState('');
+  const [quickAddDesc, setQuickAddDesc] = useState('');
+  const [quickAddAmount, setQuickAddAmount] = useState('');
+  const [quickAddCategory, setQuickAddCategory] = useState('Alimentação');
+
   // Sync inputs when modal opens or profile changes
   useEffect(() => {
     if (showSalaryModal) {
@@ -51,6 +75,10 @@ export default function CalendarPage() {
       setSalaryError('');
     }
   }, [showSalaryModal, profile]);
+
+  useEffect(() => {
+    setQuickAddCategory(quickAddType === 'expense' ? 'Alimentação' : 'Salário');
+  }, [quickAddType]);
 
   const formatBRL = (val: number) => {
     return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -69,7 +97,7 @@ export default function CalendarPage() {
       // Current month salary
       const currentSalaryDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(profile.salaryDay).padStart(2, '0')}`;
       events.push({
-        id: `salary-current-${year}-${month}`,
+        id: `s-salary-current-${year}-${month}`,
         title: `Salário 💰`,
         amount: profile.salaryAmount,
         type: 'income',
@@ -83,7 +111,7 @@ export default function CalendarPage() {
       const prevM = prevMonthDate.getMonth();
       const prevSalaryDateStr = `${prevYear}-${String(prevM + 1).padStart(2, '0')}-${String(profile.salaryDay).padStart(2, '0')}`;
       events.push({
-        id: `salary-prev-${prevYear}-${prevM}`,
+        id: `s-salary-prev-${prevYear}-${prevM}`,
         title: `Salário 💰`,
         amount: profile.salaryAmount,
         type: 'income',
@@ -97,7 +125,7 @@ export default function CalendarPage() {
       const nextM = nextMonthDate.getMonth();
       const nextSalaryDateStr = `${nextYear}-${String(nextM + 1).padStart(2, '0')}-${String(profile.salaryDay).padStart(2, '0')}`;
       events.push({
-        id: `salary-next-${nextYear}-${nextM}`,
+        id: `s-salary-next-${nextYear}-${nextM}`,
         title: `Salário 💰`,
         amount: profile.salaryAmount,
         type: 'income',
@@ -210,6 +238,68 @@ export default function CalendarPage() {
     setSelectedDayString(dayStr);
   };
 
+  const handleCompleteEvent = (event: CalendarEvent) => {
+    const rawId = event.id.substring(2); // removes type prefix
+    if (event.type === 'expense' || event.type === 'income') {
+      const tx = transactions.find(t => t.id === rawId);
+      if (tx) {
+        updateTransaction({
+          ...tx,
+          is_realized: true,
+          type: tx.type === 'predicted_income' ? 'income' : tx.type
+        });
+        
+        confetti({
+          particleCount: 50,
+          spread: 40,
+          colors: ['#FFB7C5', '#A2D2FF']
+        });
+      }
+    } else if (event.type === 'debt') {
+      payDebtInstallment(rawId);
+    }
+  };
+
+  const handleDeleteEvent = (event: CalendarEvent) => {
+    const rawId = event.id.substring(2); // removes prefix
+    if (event.type === 'expense' || event.type === 'income') {
+      deleteTransaction(rawId);
+    } else if (event.type === 'debt') {
+      deleteDebt(rawId);
+    } else if (event.type === 'goal') {
+      deleteGoal(rawId);
+    }
+  };
+
+  const handleQuickAddSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!quickAddDesc || !quickAddAmount) return;
+
+    addTransaction({
+      description: quickAddDesc,
+      amount: parseFloat(quickAddAmount),
+      type: quickAddType,
+      category: quickAddCategory,
+      date: quickAddDate,
+      recurrence: 'none',
+      is_realized: true
+    });
+
+    confetti({
+      particleCount: 65,
+      spread: 50,
+      colors: ['#FFB7C5', '#FF4D6D']
+    });
+
+    setQuickAddDesc('');
+    setQuickAddAmount('');
+    setShowQuickAddModal(false);
+  };
+
+  const expenseCategories = ['Alimentação', 'Transporte', 'Saúde', 'Lazer', 'Moradia', 'Educação', 'Assinaturas', 'Compras', 'Outros'];
+  const incomeCategories = ['Salário', 'Freelance', 'Comissão', 'Vendas', 'Rendimentos', 'Outros'];
+  const activeCategories = quickAddType === 'expense' ? expenseCategories : incomeCategories;
+
   return (
     <div className="space-y-6">
       
@@ -217,7 +307,7 @@ export default function CalendarPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight">Calendário Financeiro 📅</h1>
-          <p className="text-sm text-muted-foreground">Monitore vencimentos de faturas, parcelas de empréstimos, ganhos e metas.</p>
+          <p className="text-sm text-muted-foreground">Monitore vencimentos, recebimentos e metas. Clique com o botão direito para ações rápidas.</p>
         </div>
         <button 
           onClick={() => setShowSalaryModal(true)}
@@ -295,7 +385,15 @@ export default function CalendarPage() {
                 <button
                   key={idx}
                   onClick={() => handleDayClick(item.dateString)}
-                  className={`min-h-[70px] md:min-h-[85px] p-2 rounded-2xl border text-left flex flex-col justify-between transition-all relative hover:border-primary/50 group ${
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    setContextMenu({
+                      x: e.clientX,
+                      y: e.clientY,
+                      date: item.dateString
+                    });
+                  }}
+                  className={`min-h-[70px] md:min-h-[85px] p-2 rounded-2xl border text-left flex flex-col justify-between transition-all relative hover:border-primary/50 group select-none ${
                     item.isCurrentMonth 
                       ? 'bg-card border-border text-foreground' 
                       : 'bg-muted/10 border-border/30 text-muted-foreground/50'
@@ -309,8 +407,8 @@ export default function CalendarPage() {
                     {item.day}
                   </span>
 
-                  {/* Mini Event Dots/Lines */}
-                  <div className="space-y-1 w-full mt-2">
+                  {/* Desktop Event View (Text Labels) */}
+                  <div className="hidden md:block space-y-1 w-full mt-2">
                     {dayEvents.slice(0, 2).map((event, eventIdx) => {
                       let bgColor = 'bg-primary';
                       if (event.type === 'expense' || event.type === 'debt') bgColor = 'bg-red-400 dark:bg-red-600';
@@ -320,7 +418,17 @@ export default function CalendarPage() {
                       return (
                         <div 
                           key={eventIdx}
-                          className={`text-[8px] md:text-[9px] px-1 py-0.5 rounded font-semibold truncate text-white leading-tight ${bgColor}`}
+                          onContextMenu={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setContextMenu({
+                              x: e.clientX,
+                              y: e.clientY,
+                              date: item.dateString,
+                              event: event
+                            });
+                          }}
+                          className={`text-[8px] md:text-[9px] px-1 py-0.5 rounded font-semibold truncate text-white leading-tight cursor-context-menu hover:scale-102 hover:brightness-95 transition-all ${bgColor}`}
                         >
                           {event.title.split(' ')[0]}: {formatBRL(event.amount)}
                         </div>
@@ -331,6 +439,24 @@ export default function CalendarPage() {
                         + {dayEvents.length - 2} mais
                       </div>
                     )}
+                  </div>
+
+                  {/* Mobile Event View (Clean Colored Dots) */}
+                  <div className="flex md:hidden flex-wrap gap-0.5 justify-center mt-1 w-full max-w-full overflow-hidden">
+                    {dayEvents.map((event, eventIdx) => {
+                      let bgColor = 'bg-primary';
+                      if (event.type === 'expense' || event.type === 'debt') bgColor = 'bg-red-400 dark:bg-red-600';
+                      if (event.type === 'income') bgColor = 'bg-green-400 dark:bg-green-600';
+                      if (event.type === 'goal') bgColor = 'bg-amber-400 dark:bg-amber-500';
+
+                      return (
+                        <span 
+                          key={eventIdx} 
+                          className={`w-1.5 h-1.5 rounded-full shrink-0 ${bgColor}`}
+                          title={event.title}
+                        />
+                      );
+                    })}
                   </div>
                 </button>
               );
@@ -345,6 +471,163 @@ export default function CalendarPage() {
           <span className="flex items-center gap-1.5 font-semibold"><span className="w-2.5 h-2.5 rounded-full bg-amber-400 dark:bg-amber-500" /> Metas de Investimento</span>
         </div>
       </div>
+
+      {/* Floating Custom Right-Click Context Menu */}
+      {contextMenu && (
+        <>
+          <div 
+            className="fixed inset-0 z-40" 
+            onClick={() => setContextMenu(null)}
+            onContextMenu={(e) => { e.preventDefault(); setContextMenu(null); }}
+          />
+          <div 
+            className="fixed bg-card border border-border rounded-xl shadow-xl py-1.5 min-w-[160px] z-50 animate-in fade-in zoom-in-95 duration-100 text-xs"
+            style={{ 
+              left: `${contextMenu.x}px`, 
+              top: `${contextMenu.y}px` 
+            }}
+          >
+            {contextMenu.event ? (
+              // Event Right-Click Options
+              <>
+                <div className="px-3 py-1.5 border-b border-border text-[9px] text-muted-foreground font-bold uppercase truncate max-w-[180px]">
+                  {contextMenu.event.title}
+                </div>
+                {contextMenu.event.type !== 'goal' && !contextMenu.event.isRealized && (
+                  <button 
+                    onClick={() => {
+                      handleCompleteEvent(contextMenu.event!);
+                      setContextMenu(null);
+                    }}
+                    className="w-full text-left px-3 py-2 hover:bg-muted font-semibold text-green-600 dark:text-green-400 flex items-center gap-1.5"
+                  >
+                    <span>✅</span> Confirmar / Pagar
+                  </button>
+                )}
+                <button 
+                  onClick={() => {
+                    handleDeleteEvent(contextMenu.event!);
+                    setContextMenu(null);
+                  }}
+                  className="w-full text-left px-3 py-2 hover:bg-muted font-semibold text-red-500 flex items-center gap-1.5"
+                >
+                  <span>🗑️</span> Excluir
+                </button>
+              </>
+            ) : (
+              // Day Right-Click Options
+              <>
+                <div className="px-3 py-1.5 border-b border-border text-[9px] text-muted-foreground font-bold uppercase">
+                  Opções do Dia
+                </div>
+                <button 
+                  onClick={() => {
+                    setQuickAddType('income');
+                    setQuickAddDate(contextMenu.date);
+                    setShowQuickAddModal(true);
+                    setContextMenu(null);
+                  }}
+                  className="w-full text-left px-3 py-2 hover:bg-muted font-semibold text-green-600 dark:text-green-400 flex items-center gap-1.5"
+                >
+                  <span>➕💰</span> Receita Rápida
+                </button>
+                <button 
+                  onClick={() => {
+                    setQuickAddType('expense');
+                    setQuickAddDate(contextMenu.date);
+                    setShowQuickAddModal(true);
+                    setContextMenu(null);
+                  }}
+                  className="w-full text-left px-3 py-2 hover:bg-muted font-semibold text-red-500 flex items-center gap-1.5"
+                >
+                  <span>➕💸</span> Despesa Rápida
+                </button>
+              </>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* Quick Add Modal */}
+      {showQuickAddModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-card border border-border w-full max-w-sm rounded-2xl shadow-xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-4 border-b border-border flex justify-between items-center bg-muted/20">
+              <h3 className="font-bold text-sm flex items-center gap-1.5 text-accent">
+                {quickAddType === 'expense' ? '💸 Nova Despesa Rápida' : '💰 Nova Receita Rápida'}
+              </h3>
+              <button 
+                onClick={() => setShowQuickAddModal(false)}
+                className="p-1 rounded-lg hover:bg-muted text-muted-foreground"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleQuickAddSubmit} className="p-5 space-y-4 text-xs">
+              <div className="space-y-1">
+                <span className="font-bold text-muted-foreground uppercase block text-[9px]">Data selecionada</span>
+                <span className="font-extrabold text-foreground text-sm">{quickAddDate}</span>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="font-bold text-muted-foreground">Descrição</label>
+                <input 
+                  type="text" 
+                  placeholder="Ex: Almoço de domingo"
+                  value={quickAddDesc}
+                  onChange={(e) => setQuickAddDesc(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-border bg-background focus:outline-none focus:border-accent"
+                  required
+                  autoFocus
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="font-bold text-muted-foreground">Valor (R$)</label>
+                <input 
+                  type="number" 
+                  step="0.01" 
+                  placeholder="Ex: 45.00"
+                  value={quickAddAmount}
+                  onChange={(e) => setQuickAddAmount(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-border bg-background focus:outline-none focus:border-accent font-bold"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="font-bold text-muted-foreground">Categoria</label>
+                <select
+                  value={quickAddCategory}
+                  onChange={(e) => setQuickAddCategory(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-foreground font-semibold"
+                >
+                  {activeCategories.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="pt-2 flex gap-2 justify-end">
+                <button 
+                  type="button"
+                  onClick={() => setShowQuickAddModal(false)}
+                  className="px-4 py-2 border border-border hover:bg-muted rounded-xl font-semibold text-muted-foreground transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  type="submit"
+                  className="px-4 py-2 bg-accent hover:bg-accent/90 text-white rounded-xl font-bold transition-all shadow-sm"
+                >
+                  Adicionar Lançamento
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Day Events Detail Drawer/Modal */}
       {selectedDayString && (
@@ -389,11 +672,28 @@ export default function CalendarPage() {
                           <span className="text-[10px] text-muted-foreground block mt-0.5">Banco: {event.institution}</span>
                         )}
                       </div>
-                      <span className={`font-extrabold text-sm ${
-                        event.type === 'expense' || event.type === 'debt' ? 'text-red-500' : 'text-green-600'
-                      }`}>
-                        {formatBRL(event.amount)}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className={`font-extrabold text-sm ${
+                          event.type === 'expense' || event.type === 'debt' ? 'text-red-500' : 'text-green-600'
+                        }`}>
+                          {formatBRL(event.amount)}
+                        </span>
+                        
+                        {/* Status updates from agenda modal */}
+                        {event.type !== 'goal' && !event.isRealized && (
+                          <button 
+                            onClick={() => {
+                              handleCompleteEvent(event);
+                              // Update local list
+                              setSelectedDayEvents(prev => prev.map(e => e.id === event.id ? { ...e, isRealized: true } : e));
+                            }}
+                            className="p-1 hover:bg-green-100 dark:hover:bg-green-950/30 text-green-600 rounded-lg"
+                            title="Confirmar pagamento"
+                          >
+                            <CheckCircle className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   );
                 })

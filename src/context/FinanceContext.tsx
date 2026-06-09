@@ -34,6 +34,8 @@ interface FinanceContextType extends FinanceState {
   clearNotifications: () => void;
   toggleTheme: () => void;
   updateProfile: (p: Profile) => void;
+  exportState: () => string;
+  importState: (stateStr: string) => boolean;
   
   // Computed Metrics
   dinheiroEmConta: number;
@@ -507,6 +509,53 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setNotifications([]);
   };
 
+  const exportState = () => {
+    const state = {
+      profile,
+      transactions,
+      debts,
+      goals,
+      caixinhas,
+      bankConnections,
+      notifications,
+      theme,
+      __version: 3
+    };
+    return JSON.stringify(state, null, 2);
+  };
+
+  const importState = (stateStr: string): boolean => {
+    try {
+      const parsed = JSON.parse(stateStr);
+      if (parsed && typeof parsed === 'object') {
+        if (parsed.profile) setProfile(parsed.profile);
+        if (parsed.transactions) setTransactions(parsed.transactions);
+        if (parsed.debts) setDebts(parsed.debts);
+        if (parsed.goals) setGoals(parsed.goals);
+        if (parsed.caixinhas) setCaixinhas(parsed.caixinhas);
+        if (parsed.bankConnections) setBankConnections(parsed.bankConnections);
+        if (parsed.notifications) setNotifications(parsed.notifications);
+        if (parsed.theme) {
+          setTheme(parsed.theme);
+          if (parsed.theme === 'dark') {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        }
+        addSystemNotification(
+          'Backup Restaurado! 🎉🌸',
+          'Seus dados financeiros foram importados com sucesso.',
+          'success'
+        );
+        return true;
+      }
+    } catch (e) {
+      console.error('Error importing state:', e);
+    }
+    return false;
+  };
+
   return (
     <FinanceContext.Provider value={{
       profile,
@@ -538,6 +587,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       updateBankConnection,
       markNotificationRead,
       clearNotifications,
+      exportState,
+      importState,
       
       // Computed Metrics
       dinheiroEmConta,

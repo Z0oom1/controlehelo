@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import confetti from 'canvas-confetti';
 import { useFinanceState } from '../context/FinanceContext';
 import { 
   LayoutDashboard, 
@@ -29,7 +30,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     clearNotifications, 
     theme, 
     toggleTheme,
-    updateProfile
+    updateProfile,
+    importState,
+    exportState
   } = useFinanceState();
   const [showNotifications, setShowNotifications] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -322,6 +325,170 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 <div>
                   <p className="text-xs font-semibold">{profile.name || 'Usuário'}</p>
                   <p className="text-[10px] text-muted-foreground">Premium</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Profile Settings and Backup Modal */}
+      {showProfileSettings && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-card border border-border w-full max-w-md rounded-3xl shadow-xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+            <div className="p-5 border-b border-border flex justify-between items-center bg-muted/20">
+              <h3 className="font-extrabold text-base flex items-center gap-1.5 text-accent">
+                🌸 Configurações do Perfil
+              </h3>
+              <button 
+                onClick={() => setShowProfileSettings(false)}
+                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 text-xs">
+              {profileError && (
+                <div className="p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50 rounded-xl text-red-500 font-bold flex items-center gap-1.5">
+                  <span>⚠️ {profileError}</span>
+                </div>
+              )}
+
+              {/* Profile Config Form */}
+              <form 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const amount = parseFloat(salaryAmount);
+                  const day = parseInt(salaryDay);
+                  
+                  if (!profileName.trim()) {
+                    setProfileError('O nome do usuário é obrigatório.');
+                    return;
+                  }
+
+                  updateProfile({
+                    ...profile,
+                    name: profileName,
+                    salaryAmount: isNaN(amount) ? undefined : amount,
+                    salaryDay: isNaN(day) || day < 1 || day > 31 ? undefined : day
+                  });
+                  
+                  confetti({
+                    particleCount: 50,
+                    spread: 40,
+                    colors: ['#FFB7C5', '#FF4D6D']
+                  });
+                  
+                  setShowProfileSettings(false);
+                }}
+                className="space-y-4"
+              >
+                <div className="space-y-1.5">
+                  <label className="font-bold text-muted-foreground">Nome da Helo (Seu Nome)</label>
+                  <input 
+                    type="text"
+                    value={profileName}
+                    onChange={(e) => setProfileName(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm text-foreground"
+                    placeholder="Digite seu nome"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="font-bold text-muted-foreground">Salário Mensal (R$)</label>
+                    <input 
+                      type="number"
+                      step="0.01"
+                      value={salaryAmount}
+                      onChange={(e) => setSalaryAmount(e.target.value)}
+                      className="w-full p-2.5 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm text-foreground"
+                      placeholder="Ex: 5000.00"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="font-bold text-muted-foreground">Dia do Pagamento</label>
+                    <input 
+                      type="number"
+                      min="1"
+                      max="31"
+                      value={salaryDay}
+                      onChange={(e) => setSalaryDay(e.target.value)}
+                      className="w-full p-2.5 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm text-foreground"
+                      placeholder="Ex: 5"
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-2 flex justify-end">
+                  <button 
+                    type="submit"
+                    className="px-5 py-2 bg-accent hover:bg-accent/90 text-white rounded-xl text-xs font-bold transition-all shadow-md"
+                  >
+                    Salvar Alterações
+                  </button>
+                </div>
+              </form>
+
+              <div className="border-t border-border pt-5 space-y-4">
+                <h4 className="font-extrabold text-sm text-foreground flex items-center gap-1.5">
+                  💾 Backup & Transferência de Dados
+                </h4>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  Exporte todo o seu histórico financeiro (contas, caixinhas, dívidas, metas e transações) em um arquivo JSON para transferir de dispositivo sem perder nenhum dado.
+                </p>
+
+                <div className="grid grid-cols-2 gap-3 pt-1">
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      const jsonStr = exportState();
+                      const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(jsonStr);
+                      const exportFileDefaultName = `helo_financ_backup_${new Date().toISOString().split('T')[0]}.json`;
+                      const linkElement = document.createElement('a');
+                      linkElement.setAttribute('href', dataUri);
+                      linkElement.setAttribute('download', exportFileDefaultName);
+                      linkElement.click();
+                    }}
+                    className="py-3 px-4 border border-border hover:bg-muted font-bold rounded-xl transition-all text-center flex flex-col items-center justify-center gap-1 hover:border-primary/50 text-foreground"
+                  >
+                    <span className="text-lg">📤</span>
+                    <span>Exportar Backup</span>
+                  </button>
+
+                  <label 
+                    className="py-3 px-4 border border-border hover:bg-muted font-bold rounded-xl transition-all text-center flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-primary/50 text-foreground"
+                  >
+                    <span className="text-lg">📥</span>
+                    <span>Importar Backup</span>
+                    <input 
+                      type="file"
+                      accept=".json"
+                      onChange={(e) => {
+                        if (!e.target.files || !e.target.files[0]) return;
+                        const fileReader = new FileReader();
+                        fileReader.onload = (event) => {
+                          const text = event.target?.result as string;
+                          const success = importState(text);
+                          if (success) {
+                            confetti({
+                              particleCount: 100,
+                              spread: 70,
+                              origin: { y: 0.6 },
+                              colors: ['#FFB7C5', '#FF4D6D']
+                            });
+                            setShowProfileSettings(false);
+                          } else {
+                            setProfileError('Arquivo inválido ou corrompido. Certifique-se de que é um arquivo JSON exportado por este aplicativo.');
+                          }
+                        };
+                        fileReader.readAsText(e.target.files[0]);
+                      }}
+                      className="hidden"
+                    />
+                  </label>
                 </div>
               </div>
             </div>
