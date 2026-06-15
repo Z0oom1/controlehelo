@@ -100,12 +100,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <Link
                 key={item.name}
                 href={item.href}
-                className={`flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group ${
+                className={`relative flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group ${
                   isActive 
                     ? 'glass-card text-foreground shadow-sm font-semibold border-white/20 dark:border-white/10 scale-102' 
                     : 'text-muted-foreground hover:bg-muted/30 hover:text-foreground'
                 }`}
               >
+                {isActive && <div className="absolute left-0 top-3 bottom-3 w-1.5 bg-accent rounded-r-full" />}
                 <Icon className={`w-5 h-5 transition-transform duration-200 group-hover:scale-110 ${isActive ? 'text-accent' : 'text-muted-foreground'}`} />
                 <span>{item.name}</span>
               </Link>
@@ -350,15 +351,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       )}
       {/* Profile Settings and Backup Modal */}
       {showProfileSettings && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-card border border-border w-full max-w-md rounded-3xl shadow-xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
-            <div className="p-5 border-b border-border flex justify-between items-center bg-muted/20">
-              <h3 className="font-extrabold text-base flex items-center gap-1.5 text-accent">
+        <div className="fixed inset-0 bg-black/55 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="modal-sheet w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-3 duration-300 relative flex flex-col max-h-[90vh]">
+            {/* iOS handle pill */}
+            <div className="w-12 h-1.5 bg-muted-foreground/20 dark:bg-muted-foreground/30 rounded-full mx-auto mt-3 -mb-2 shrink-0" />
+            <div className="p-5 border-b border-border/40 flex justify-between items-center bg-muted/20 select-none">
+              <h3 className="font-extrabold text-base flex items-center gap-1.5 text-accent font-outfit">
                 Configurações do Perfil
               </h3>
               <button 
                 onClick={() => setShowProfileSettings(false)}
-                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>

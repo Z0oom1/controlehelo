@@ -556,15 +556,17 @@ export default function CalendarPage() {
 
       {/* Quick Add Modal */}
       {showQuickAddModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-card border border-border w-full max-w-sm rounded-2xl shadow-xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-4 border-b border-border flex justify-between items-center bg-muted/20">
-              <h3 className="font-bold text-sm flex items-center gap-1.5 text-accent">
+        <div className="fixed inset-0 bg-black/55 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="modal-sheet w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-3 duration-300 relative flex flex-col max-h-[90vh]">
+            {/* iOS handle pill */}
+            <div className="w-12 h-1.5 bg-muted-foreground/20 dark:bg-muted-foreground/30 rounded-full mx-auto mt-3 -mb-2 shrink-0" />
+            <div className="p-4 border-b border-border/40 flex justify-between items-center bg-muted/20 select-none">
+              <h3 className="font-bold text-sm flex items-center gap-1.5 text-accent font-outfit">
                 {quickAddType === 'expense' ? '💸 Nova Despesa Rápida' : '💰 Nova Receita Rápida'}
               </h3>
               <button 
                 onClick={() => setShowQuickAddModal(false)}
-                className="p-1 rounded-lg hover:bg-muted text-muted-foreground"
+                className="p-1 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -637,15 +639,17 @@ export default function CalendarPage() {
 
       {/* Day Events Detail Drawer/Modal */}
       {selectedDayString && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-card border border-border w-full max-w-sm rounded-2xl shadow-xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-4 border-b border-border flex justify-between items-center bg-muted/20">
-              <h3 className="font-bold text-sm">
+        <div className="fixed inset-0 bg-black/55 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="modal-sheet w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-3 duration-300 relative flex flex-col max-h-[90vh]">
+            {/* iOS handle pill */}
+            <div className="w-12 h-1.5 bg-muted-foreground/20 dark:bg-muted-foreground/30 rounded-full mx-auto mt-3 -mb-2 shrink-0" />
+            <div className="p-4 border-b border-border/40 flex justify-between items-center bg-muted/20 select-none">
+              <h3 className="font-bold text-sm font-outfit">
                 📅 Agenda do Dia: {selectedDayString}
               </h3>
               <button 
                 onClick={() => { setSelectedDayString(''); setSelectedDayEvents([]); }}
-                className="p-1 rounded-lg hover:bg-muted text-muted-foreground"
+                className="p-1 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -711,15 +715,17 @@ export default function CalendarPage() {
 
       {/* Salary Configuration Modal */}
       {showSalaryModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-card border border-border w-full max-w-sm rounded-2xl shadow-xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-4 border-b border-border flex justify-between items-center bg-muted/20">
-              <h3 className="font-bold text-sm flex items-center gap-1.5">
+        <div className="fixed inset-0 bg-black/55 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="modal-sheet w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-3 duration-300 relative flex flex-col max-h-[90vh]">
+            {/* iOS handle pill */}
+            <div className="w-12 h-1.5 bg-muted-foreground/20 dark:bg-muted-foreground/30 rounded-full mx-auto mt-3 -mb-2 shrink-0" />
+            <div className="p-4 border-b border-border/40 flex justify-between items-center bg-muted/20 select-none">
+              <h3 className="font-bold text-sm flex items-center gap-1.5 font-outfit">
                 Configurar Salário Recorrente
               </h3>
               <button 
                 onClick={() => setShowSalaryModal(false)}
-                className="p-1 rounded-lg hover:bg-muted text-muted-foreground"
+                className="p-1 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>

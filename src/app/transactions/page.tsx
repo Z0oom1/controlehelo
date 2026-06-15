@@ -459,12 +459,15 @@ export default function TransactionsPage() {
 
       {/* Modal form overlay */}
       {showAddForm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-card border border-border w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-3 duration-300 flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 bg-black/55 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="modal-sheet w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-3 duration-300 relative flex flex-col max-h-[90vh]">
+            {/* iOS handle pill */}
+            <div className="w-12 h-1.5 bg-muted-foreground/20 dark:bg-muted-foreground/30 rounded-full mx-auto mt-3 -mb-2 shrink-0" />
+            
             {/* Modal Header */}
-            <div className="p-6 border-b border-border flex justify-between items-center bg-gradient-to-r from-primary/10 to-accent/10">
+            <div className="p-6 border-b border-border/40 flex justify-between items-center bg-gradient-to-r from-primary/10 to-accent/10 select-none">
               <div>
-                <h3 className="font-extrabold text-lg flex items-center gap-2 text-foreground">
+                <h3 className="font-extrabold text-lg flex items-center gap-2 text-foreground font-outfit">
                   <TrendingUp className="w-5 h-5 text-accent" />
                   {editTransactionId ? "Editar Lançamento" : "Novo Lançamento"}
                 </h3>

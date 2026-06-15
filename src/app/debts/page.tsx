@@ -317,12 +317,15 @@ export default function DebtsPage() {
 
       {/* Add / Edit Debt Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-card border border-border w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-3 duration-300">
+        <div className="fixed inset-0 bg-black/55 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="modal-sheet w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-3 duration-300 relative flex flex-col max-h-[90vh]">
+            {/* iOS handle pill */}
+            <div className="w-12 h-1.5 bg-muted-foreground/20 dark:bg-muted-foreground/30 rounded-full mx-auto mt-3 -mb-2 shrink-0" />
+            
             {/* Header with gradient accent */}
-            <div className="p-6 border-b border-border flex justify-between items-center bg-gradient-to-r from-primary/10 to-accent/10">
+            <div className="p-6 border-b border-border/40 flex justify-between items-center bg-gradient-to-r from-primary/10 to-accent/10 select-none">
               <div>
-                <h3 className="font-extrabold text-lg flex items-center gap-2 text-foreground">
+                <h3 className="font-extrabold text-lg flex items-center gap-2 text-foreground font-outfit">
                   <CreditCard className="w-5 h-5 text-accent" />
                   {editDebtId ? "Editar Dívida" : "Cadastrar Nova Dívida"}
                 </h3>
@@ -336,7 +339,7 @@ export default function DebtsPage() {
               </button>
             </div>
             
-            <form onSubmit={handleSubmit} className="p-6 space-y-5">
+            <form onSubmit={handleSubmit} className="p-6 space-y-5 flex-1 overflow-y-auto">
               {/* Bank Connection Selection */}
               <div className="space-y-2">
                 <label className="font-bold text-sm text-foreground flex items-center gap-1.5">

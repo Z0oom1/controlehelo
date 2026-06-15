@@ -8,6 +8,7 @@ import {
   Goal, 
   Caixinha, 
   BankConnection, 
+  Invoice,
   AppNotification,
   Profile
 } from '../types';
@@ -31,7 +32,7 @@ interface FinanceContextType extends FinanceState {
   transferBetweenCaixinhas: (fromId: string, toId: string, amount: number) => boolean;
   connectBankFile: (bankName: string, balance: number, limit: number, creditCardInvoice: number, importedTxs: (Omit<Transaction, 'id'> & { id?: string })[]) => void;
   disconnectBank: (id: string) => void;
-  updateBankConnection: (id: string, balance: number, limit: number, creditCardInvoice: number) => void;
+  updateBankConnection: (id: string, balance: number, limit: number, creditCardInvoice: number, invoices?: Invoice[]) => void;
   markNotificationRead: (id: string) => void;
   clearNotifications: () => void;
   toggleTheme: () => void;
@@ -523,10 +524,17 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return true;
   };
 
-  const updateBankConnection = (id: string, balance: number, limit: number, creditCardInvoice: number) => {
+  const updateBankConnection = (id: string, balance: number, limit: number, creditCardInvoice: number, invoices?: Invoice[]) => {
     setBankConnections(prev => prev.map(c => 
       c.id === id 
-        ? { ...c, balance, limit, credit_card_invoice: creditCardInvoice, connected_at: new Date().toISOString().split('T')[0] }
+        ? { 
+            ...c, 
+            balance: balance === -1 ? c.balance : balance, 
+            limit: limit === -1 ? c.limit : limit, 
+            credit_card_invoice: creditCardInvoice, 
+            invoices: invoices || c.invoices || [],
+            connected_at: new Date().toISOString().split('T')[0] 
+          }
         : c
     ));
     addSystemNotification(

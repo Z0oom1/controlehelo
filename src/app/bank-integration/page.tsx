@@ -127,7 +127,7 @@ export default function BankIntegrationPage() {
     setEditLimit(conn.limit.toString());
     setEditInvoice(conn.credit_card_invoice.toString());
     setEditInvoices(conn.invoices || []);
-    setActiveInvoiceTab(0);
+    setActiveInvoiceTab(-1);
   };
 
   const getNextMonth = (lastMonthStr?: string) => {
@@ -165,7 +165,7 @@ export default function BankIntegrationPage() {
     const invoice = parseFloat(editInvoice) || 0;
 
     // We'll need to update the context to accept invoices
-    updateBankConnection(editingConnection.id, balance, limit, invoice);
+    updateBankConnection(editingConnection.id, balance, limit, invoice, editInvoices);
     
     confetti({
       particleCount: 50,
@@ -462,19 +462,21 @@ export default function BankIntegrationPage() {
 
       {/* Edit Modal */}
       {editingConnection && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-card border border-border rounded-3xl shadow-xl max-w-md w-full p-6 space-y-4 animate-in slide-in-from-bottom-3 duration-300">
-            <div className="flex justify-between items-center pb-4 border-b border-border">
+        <div className="fixed inset-0 bg-black/55 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="modal-sheet rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-in slide-in-from-bottom-3 duration-300 relative flex flex-col max-h-[90vh]">
+            {/* iOS handle pill */}
+            <div className="w-12 h-1.5 bg-muted-foreground/20 dark:bg-muted-foreground/30 rounded-full mx-auto mt-3 -mb-2 shrink-0" />
+            <div className="p-6 border-b border-border/40 flex justify-between items-center bg-muted/20 select-none">
               <h3 className="font-extrabold text-base">Editar {editingConnection.bank_name}</h3>
               <button 
                 onClick={() => setEditingConnection(null)}
-                className="p-1 hover:bg-muted rounded-lg transition-colors"
+                className="p-1 hover:bg-muted rounded-lg transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleConfirmEdit} className="space-y-4">
+            <form onSubmit={handleConfirmEdit} className="p-6 space-y-4 flex-1 overflow-y-auto">
               <div className="space-y-1.5">
                 <label className="font-bold text-muted-foreground text-xs">Saldo em Conta (R$)</label>
                 <input 
@@ -498,12 +500,12 @@ export default function BankIntegrationPage() {
               </div>
 
               <div className="space-y-3">
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center select-none">
                   <label className="font-bold text-muted-foreground text-xs">Gestão de Faturas</label>
                   <button 
                     type="button"
                     onClick={addFutureInvoice}
-                    className="p-1 bg-accent/10 hover:bg-accent/20 text-accent rounded-lg transition-colors flex items-center gap-1 text-[10px] font-bold"
+                    className="p-1 bg-accent/10 hover:bg-accent/20 text-accent rounded-lg transition-colors flex items-center gap-1 text-[10px] font-bold cursor-pointer"
                   >
                     <Plus className="w-3 h-3" /> ADICIONAR MÊS
                   </button>
@@ -511,11 +513,11 @@ export default function BankIntegrationPage() {
 
                 <div className="space-y-2">
                   {/* Invoice Tabs/Abas */}
-                  <div className="flex gap-1 overflow-x-auto pb-1 no-scrollbar">
+                  <div className="flex gap-1 overflow-x-auto pb-1 no-scrollbar select-none">
                     <button
                       type="button"
                       onClick={() => setActiveInvoiceTab(-1)}
-                      className={`px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap transition-all ${activeInvoiceTab === -1 ? 'bg-accent text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
+                      className={`px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap transition-all cursor-pointer ${activeInvoiceTab === -1 ? 'bg-accent text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
                     >
                       Atual
                     </button>
@@ -524,7 +526,7 @@ export default function BankIntegrationPage() {
                         key={inv.id}
                         type="button"
                         onClick={() => setActiveInvoiceTab(idx)}
-                        className={`px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap transition-all ${activeInvoiceTab === idx ? 'bg-accent text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
+                        className={`px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap transition-all cursor-pointer ${activeInvoiceTab === idx ? 'bg-accent text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
                       >
                         {inv.month}
                       </button>
@@ -533,7 +535,7 @@ export default function BankIntegrationPage() {
 
                   {/* Active Tab Content */}
                   <div className="p-3 bg-muted/30 border border-border/50 rounded-2xl">
-                    {activeInvoiceTab === -1 ? (
+                    {activeInvoiceTab === -1 || !editInvoices[activeInvoiceTab] ? (
                       <div className="space-y-1.5">
                         <label className="text-[10px] font-bold text-muted-foreground uppercase">Valor Fatura Atual (R$)</label>
                         <input 
@@ -541,7 +543,7 @@ export default function BankIntegrationPage() {
                           step="0.01"
                           value={editInvoice}
                           onChange={(e) => setEditInvoice(e.target.value)}
-                          className="w-full p-2 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm font-semibold"
+                          className="w-full p-2 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm font-semibold text-foreground"
                         />
                       </div>
                     ) : (
@@ -552,7 +554,7 @@ export default function BankIntegrationPage() {
                           step="0.01"
                           value={editInvoices[activeInvoiceTab].amount}
                           onChange={(e) => updateInvoiceAmount(activeInvoiceTab, e.target.value)}
-                          className="w-full p-2 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm font-semibold"
+                          className="w-full p-2 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm font-semibold text-foreground"
                         />
                       </div>
                     )}
@@ -564,13 +566,13 @@ export default function BankIntegrationPage() {
                 <button
                   type="button"
                   onClick={() => setEditingConnection(null)}
-                  className="flex-1 px-4 py-2.5 border border-border hover:bg-muted text-muted-foreground font-semibold rounded-2xl text-xs transition-colors"
+                  className="flex-1 px-4 py-2.5 border border-border hover:bg-muted text-muted-foreground font-semibold rounded-2xl text-xs transition-colors cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2.5 bg-accent hover:bg-accent/90 text-white font-bold rounded-2xl text-xs shadow-md transition-all"
+                  className="flex-1 px-4 py-2.5 bg-accent hover:bg-accent/90 text-white font-bold rounded-2xl text-xs shadow-md transition-all cursor-pointer"
                 >
                   Confirmar
                 </button>
@@ -582,11 +584,13 @@ export default function BankIntegrationPage() {
 
       {/* Pay Confirmation Modal */}
       {showPayConfirm && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-card border border-border rounded-3xl shadow-2xl max-w-sm w-full p-6 space-y-5 animate-in zoom-in-95 duration-200">
-            <div className="text-center space-y-2">
+        <div className="fixed inset-0 bg-black/55 backdrop-blur-md z-[60] flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="modal-sheet rounded-3xl shadow-2xl max-w-sm w-full p-6 space-y-5 animate-in slide-in-from-bottom-3 duration-300 relative select-none">
+            {/* iOS handle pill */}
+            <div className="w-12 h-1.5 bg-muted-foreground/20 dark:bg-muted-foreground/30 rounded-full mx-auto mt-1 -mb-2 shrink-0" />
+            <div className="text-center space-y-2 pt-2">
               <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-2">
-                <AlertTriangle className="w-8 h-8 text-accent" />
+                <AlertTriangle className="w-8 h-8 text-accent animate-bounce" />
               </div>
               <h3 className="font-black text-lg">Confirmar Pagamento?</h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
@@ -597,13 +601,13 @@ export default function BankIntegrationPage() {
             <div className="flex flex-col gap-2">
               <button
                 onClick={() => confirmPayInvoice(showPayConfirm)}
-                className="w-full py-3 bg-accent hover:bg-accent/90 text-white font-black rounded-2xl text-xs shadow-lg transition-all active:scale-95"
+                className="w-full py-3 bg-accent hover:bg-accent/90 text-white font-black rounded-2xl text-xs shadow-lg transition-all active:scale-95 cursor-pointer"
               >
                 SIM, PAGAR FATURA
               </button>
               <button
                 onClick={() => setShowPayConfirm(null)}
-                className="w-full py-3 bg-muted hover:bg-muted/80 text-muted-foreground font-bold rounded-2xl text-xs transition-all"
+                className="w-full py-3 bg-muted hover:bg-muted/80 text-muted-foreground font-bold rounded-2xl text-xs transition-all cursor-pointer"
               >
                 CANCELAR
               </button>
