@@ -450,7 +450,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                   Exporte todo o seu histórico financeiro (contas, caixinhas, dívidas, metas e transações) em um arquivo JSON para transferir de dispositivo sem perder nenhum dado.
                 </p>
 
-                             <button 
+                <div className="grid grid-cols-2 gap-3 pt-1">
+                  <button 
                     type="button"
                     onClick={() => {
                       const jsonStr = exportState();
@@ -469,7 +470,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                   <label 
                     className="py-3 px-4 border border-border hover:bg-muted font-bold rounded-xl transition-all text-center flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-primary/50 text-foreground"
                   >
-                    <span>Importar Backup</span>�</span>
                     <span>Importar Backup</span>
                     <input 
                       type="file"
