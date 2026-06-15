@@ -65,6 +65,9 @@ export default function BankIntegrationPage() {
   const [editBalance, setEditBalance] = useState('');
   const [editLimit, setEditLimit] = useState('');
   const [editInvoice, setEditInvoice] = useState('');
+  const [editInvoices, setEditInvoices] = useState<{id: string, month: string, amount: number, is_paid: boolean}[]>([]);
+  const [activeInvoiceTab, setActiveInvoiceTab] = useState(0);
+  const [showPayConfirm, setShowPayConfirm] = useState<string | null>(null);
 
   const formatBRL = (val: number) => {
     return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -123,6 +126,34 @@ export default function BankIntegrationPage() {
     setEditBalance(conn.balance.toString());
     setEditLimit(conn.limit.toString());
     setEditInvoice(conn.credit_card_invoice.toString());
+    setEditInvoices(conn.invoices || []);
+    setActiveInvoiceTab(0);
+  };
+
+  const getNextMonth = (lastMonthStr?: string) => {
+    const date = lastMonthStr ? new Date(lastMonthStr + '-01') : new Date();
+    if (lastMonthStr) date.setMonth(date.getMonth() + 1);
+    return date.toISOString().slice(0, 7); // YYYY-MM
+  };
+
+  const addFutureInvoice = () => {
+    const lastMonth = editInvoices.length > 0 
+      ? editInvoices[editInvoices.length - 1].month 
+      : getNextMonth();
+    const nextMonth = getNextMonth(lastMonth);
+    setEditInvoices([...editInvoices, { 
+      id: Math.random().toString(36).substr(2, 9),
+      month: nextMonth, 
+      amount: 0, 
+      is_paid: false 
+    }]);
+    setActiveInvoiceTab(editInvoices.length);
+  };
+
+  const updateInvoiceAmount = (index: number, amount: string) => {
+    const newInvoices = [...editInvoices];
+    newInvoices[index].amount = parseFloat(amount) || 0;
+    setEditInvoices(newInvoices);
   };
 
   const handleConfirmEdit = (e: React.FormEvent) => {
@@ -133,6 +164,7 @@ export default function BankIntegrationPage() {
     const limit = parseFloat(editLimit) || 0;
     const invoice = parseFloat(editInvoice) || 0;
 
+    // We'll need to update the context to accept invoices
     updateBankConnection(editingConnection.id, balance, limit, invoice);
     
     confetti({
@@ -142,6 +174,22 @@ export default function BankIntegrationPage() {
     });
 
     setEditingConnection(null);
+  };
+
+  const handlePayInvoice = (connId: string) => {
+    setShowPayConfirm(connId);
+  };
+
+  const confirmPayInvoice = (connId: string) => {
+    // Logic to pay current invoice
+    // For now, let's assume we pay the current invoice and set it to 0
+    updateBankConnection(connId, -1, -1, 0); 
+    setShowPayConfirm(null);
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      colors: ['#FFB7C5', '#FF4D6D']
+    });
   };
 
   return (
@@ -222,9 +270,19 @@ export default function BankIntegrationPage() {
                       <span className="opacity-80">Limite</span>
                       <span className="font-bold">{displayBRL(conn.limit)}</span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center">
                       <span className="opacity-80">Fatura</span>
-                      <span className="font-bold text-yellow-200">{displayBRL(conn.credit_card_invoice)}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-yellow-200">{displayBRL(conn.credit_card_invoice)}</span>
+                        {conn.credit_card_invoice > 0 && (
+                          <button 
+                            onClick={() => handlePayInvoice(conn.id)}
+                            className="bg-white/20 hover:bg-white/40 px-2 py-0.5 rounded text-[9px] font-bold transition-colors"
+                          >
+                            PAGAR
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -439,15 +497,67 @@ export default function BankIntegrationPage() {
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <label className="font-bold text-muted-foreground text-xs">Fatura Atual (R$)</label>
-                <input 
-                  type="number" 
-                  step="0.01"
-                  value={editInvoice}
-                  onChange={(e) => setEditInvoice(e.target.value)}
-                  className="w-full p-2.5 rounded-2xl border border-border bg-background focus:outline-none focus:border-accent text-foreground transition-colors"
-                />
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <label className="font-bold text-muted-foreground text-xs">Gestão de Faturas</label>
+                  <button 
+                    type="button"
+                    onClick={addFutureInvoice}
+                    className="p-1 bg-accent/10 hover:bg-accent/20 text-accent rounded-lg transition-colors flex items-center gap-1 text-[10px] font-bold"
+                  >
+                    <Plus className="w-3 h-3" /> ADICIONAR MÊS
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  {/* Invoice Tabs/Abas */}
+                  <div className="flex gap-1 overflow-x-auto pb-1 no-scrollbar">
+                    <button
+                      type="button"
+                      onClick={() => setActiveInvoiceTab(-1)}
+                      className={`px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap transition-all ${activeInvoiceTab === -1 ? 'bg-accent text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
+                    >
+                      Atual
+                    </button>
+                    {editInvoices.map((inv, idx) => (
+                      <button
+                        key={inv.id}
+                        type="button"
+                        onClick={() => setActiveInvoiceTab(idx)}
+                        className={`px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap transition-all ${activeInvoiceTab === idx ? 'bg-accent text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
+                      >
+                        {inv.month}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Active Tab Content */}
+                  <div className="p-3 bg-muted/30 border border-border/50 rounded-2xl">
+                    {activeInvoiceTab === -1 ? (
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-muted-foreground uppercase">Valor Fatura Atual (R$)</label>
+                        <input 
+                          type="number" 
+                          step="0.01"
+                          value={editInvoice}
+                          onChange={(e) => setEditInvoice(e.target.value)}
+                          className="w-full p-2 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm font-semibold"
+                        />
+                      </div>
+                    ) : (
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-muted-foreground uppercase">Valor Fatura {editInvoices[activeInvoiceTab].month} (R$)</label>
+                        <input 
+                          type="number" 
+                          step="0.01"
+                          value={editInvoices[activeInvoiceTab].amount}
+                          onChange={(e) => updateInvoiceAmount(activeInvoiceTab, e.target.value)}
+                          className="w-full p-2 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm font-semibold"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <div className="flex gap-2 pt-4">
@@ -466,6 +576,38 @@ export default function BankIntegrationPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Pay Confirmation Modal */}
+      {showPayConfirm && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-card border border-border rounded-3xl shadow-2xl max-w-sm w-full p-6 space-y-5 animate-in zoom-in-95 duration-200">
+            <div className="text-center space-y-2">
+              <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-2">
+                <AlertTriangle className="w-8 h-8 text-accent" />
+              </div>
+              <h3 className="font-black text-lg">Confirmar Pagamento?</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Você está prestes a registrar o pagamento da fatura atual. Esta ação irá abater o valor do seu saldo em conta. Deseja continuar?
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => confirmPayInvoice(showPayConfirm)}
+                className="w-full py-3 bg-accent hover:bg-accent/90 text-white font-black rounded-2xl text-xs shadow-lg transition-all active:scale-95"
+              >
+                SIM, PAGAR FATURA
+              </button>
+              <button
+                onClick={() => setShowPayConfirm(null)}
+                className="w-full py-3 bg-muted hover:bg-muted/80 text-muted-foreground font-bold rounded-2xl text-xs transition-all"
+              >
+                CANCELAR
+              </button>
+            </div>
           </div>
         </div>
       )}

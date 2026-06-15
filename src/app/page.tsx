@@ -24,6 +24,9 @@ export default function Dashboard() {
     totalFaturasAberto,
     totalInvestido,
     saldoLiquidoReal,
+    saldoTotalDisponivel,
+    saldoLiquidoDisponivel,
+    patrimonioAtual,
     profile,
     showValues,
     toggleShowValues
@@ -92,10 +95,10 @@ export default function Dashboard() {
       <div className="bg-card border border-border p-6 rounded-3xl shadow-sm relative overflow-hidden transition-all duration-300">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border/60">
           <div className="space-y-1">
-            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Saldo Líquido Real</span>
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Saldo Total</span>
             <div className="flex items-center gap-3">
               <span className={`text-2xl font-black tracking-tight transition-all ${showValues ? 'text-accent' : 'text-muted-foreground'}`}>
-                {displayBRL(saldoLiquidoReal)}
+                {displayBRL(patrimonioAtual)}
               </span>
               <button 
                 onClick={toggleShowValues} 
@@ -106,7 +109,7 @@ export default function Dashboard() {
               </button>
             </div>
             <p className="text-[10px] text-muted-foreground">
-              Seus ativos reais (Conta + Caixinhas) deduzidos de suas dívidas e faturas.
+              Soma de todos os seus ativos (Conta + Caixinhas + Investimentos).
             </p>
           </div>
           
@@ -122,16 +125,16 @@ export default function Dashboard() {
         {/* Quick horizontal categories */}
         <div className="grid grid-cols-3 gap-4 pt-5 select-none">
           <div className="space-y-0.5">
-            <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider block">Disponível</span>
-            <span className="text-base font-bold text-foreground block">{displayBRL(dinheiroEmConta + valorCaixinhas)}</span>
+            <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider block">Total Disponível</span>
+            <span className="text-base font-bold text-foreground block">{displayBRL(saldoTotalDisponivel)}</span>
           </div>
           <div className="space-y-0.5">
-            <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider block">Comprometido</span>
-            <span className="text-base font-bold text-red-500 block">{displayBRL(totalDividas + totalFaturasAberto)}</span>
+            <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider block">Líquido Disponível</span>
+            <span className="text-base font-bold text-accent block">{displayBRL(saldoLiquidoDisponivel)}</span>
           </div>
           <div className="space-y-0.5">
-            <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider block">Investido</span>
-            <span className="text-base font-bold text-blue-500 block">{displayBRL(totalInvestido)}</span>
+            <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider block">Patrimônio Líquido</span>
+            <span className="text-base font-bold text-primary block">{displayBRL(saldoLiquidoReal)}</span>
           </div>
         </div>
 

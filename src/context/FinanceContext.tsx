@@ -49,6 +49,8 @@ interface FinanceContextType extends FinanceState {
   totalInvestido: number;
   patrimonioAtual: number;
   saldoLiquidoReal: number;
+  saldoTotalDisponivel: number;
+  saldoLiquidoDisponivel: number;
 }
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
@@ -175,6 +177,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const valorCaixinhas = caixinhas.reduce((acc, c) => acc + c.current_value, 0);
   const totalDividas = debts.reduce((acc, d) => acc + d.current_value, 0);
+  
+  // Total das faturas atuais (mês corrente) de todos os cartões
   const totalFaturasAberto = bankConnections.reduce((acc, c) => acc + c.credit_card_invoice, 0);
   
   // Sincronizar faturas com dívidas
@@ -186,13 +190,16 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     let hasChanges = false;
 
     bankConnections.forEach(conn => {
-      if (conn.credit_card_invoice > 0) {
+      // Usar a fatura do mês atual para a dívida automática
+      const currentInvoiceAmount = conn.credit_card_invoice;
+      
+      if (currentInvoiceAmount > 0) {
         const existingDebt = currentCardDebts.find(d => d.bank_connection_id === conn.id);
         if (existingDebt) {
-          if (existingDebt.current_value !== conn.credit_card_invoice) {
+          if (existingDebt.current_value !== currentInvoiceAmount) {
             updatedDebts = updatedDebts.map(d => 
               d.id === existingDebt.id 
-                ? { ...d, current_value: conn.credit_card_invoice, original_value: conn.credit_card_invoice } 
+                ? { ...d, current_value: currentInvoiceAmount, original_value: currentInvoiceAmount } 
                 : d
             );
             hasChanges = true;
@@ -202,8 +209,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
           const newDebt: Debt = {
             id: 'd_card_' + conn.id,
             name: `Fatura Cartão - ${conn.bank_name}`,
-            original_value: conn.credit_card_invoice,
-            current_value: conn.credit_card_invoice,
+            original_value: currentInvoiceAmount,
+            current_value: currentInvoiceAmount,
             interest_rate: 0,
             total_installments: 1,
             remaining_installments: 1,
@@ -232,8 +239,19 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // Total investido is set to 0 as mock data is removed
   const totalInvestido = 0; 
 
+  // Novas Regras de Saldo:
+  // Saldo Total: Inclui tudo (Conta + Caixinha + Investimentos)
   const patrimonioAtual = dinheiroEmConta + valorCaixinhas + totalInvestido;
+  
+  // Saldo Líquido Real: Patrimônio - Dívidas - Faturas
   const saldoLiquidoReal = patrimonioAtual - totalDividas - totalFaturasAberto;
+
+  // Saldo Total Disponível: Dinheiro em Conta + Limites dos Cartões (Saldos dos cartões)
+  const totalLimitesDisponiveis = bankConnections.reduce((acc, c) => acc + (c.limit - c.credit_card_invoice), 0);
+  const saldoTotalDisponivel = dinheiroEmConta + totalLimitesDisponiveis;
+
+  // Saldo Líquido Disponível: Dinheiro em Conta + Limites dos Cartões (SEM Caixinha)
+  const saldoLiquidoDisponivel = saldoTotalDisponivel; // Já não inclui caixinha por definição baseada em dinheiroEmConta e limites
 
   // Transactions Handlers
   const addTransaction = (t: Omit<Transaction, 'id'>) => {
@@ -289,11 +307,11 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     const installmentValue = debt.current_value / debt.remaining_installments;
 
-    // Trava de segurança: verificar se há saldo total suficiente
+    // Trava de segurança: verificar se há saldo suficiente na conta principal (sem considerar Caixinha)
     if (dinheiroEmConta < installmentValue) {
       addSystemNotification(
-        'Saldo Insuficiente',
-        `Você não possui saldo suficiente (R$ ${dinheiroEmConta.toFixed(2)}) para pagar esta parcela de R$ ${installmentValue.toFixed(2)}.`,
+        'Saldo Insuficiente na Conta',
+        `Você não possui saldo suficiente na conta principal (R$ ${dinheiroEmConta.toFixed(2)}) para pagar esta parcela de R$ ${installmentValue.toFixed(2)}. Os valores na Caixinha não são considerados para pagamentos diretos.`,
         'warning'
       );
       return false;
@@ -710,7 +728,9 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       totalFaturasAberto,
       totalInvestido,
       patrimonioAtual,
-      saldoLiquidoReal
+      saldoLiquidoReal,
+      saldoTotalDisponivel,
+      saldoLiquidoDisponivel
     }}>
       {children}
     </FinanceContext.Provider>

@@ -29,7 +29,8 @@ export interface Debt {
   remaining_installments: number;
   due_date: string; // YYYY-MM-DD
   creditor: string;
-  bank_connection_id?: string; // Link to a credit card invoice
+  bank_connection_id?: string; // Link to a credit card
+  is_existing_debt?: boolean; // If true, ignore limit validation
 }
 
 export interface Goal {
@@ -51,6 +52,13 @@ export interface Caixinha {
   target_value: number;
 }
 
+export interface Invoice {
+  id: string;
+  month: string; // YYYY-MM
+  amount: number;
+  is_paid: boolean;
+}
+
 export interface BankConnection {
   id: string;
   bank_name: string;
@@ -58,7 +66,8 @@ export interface BankConnection {
   status: 'syncing' | 'connected' | 'error';
   balance: number;
   limit: number;
-  credit_card_invoice: number;
+  credit_card_invoice: number; // Current month invoice (for backward compatibility or quick access)
+  invoices: Invoice[]; // Future and past invoices
   logo: string;
 }
 

@@ -326,6 +326,47 @@ export default function DebtsPage() {
             </div>
             
             <form onSubmit={handleSubmit} className="p-6 space-y-5">
+              {/* Bank Connection Selection */}
+              <div className="space-y-2">
+                <label className="font-bold text-sm text-foreground flex items-center gap-1.5">
+                  Vincular a um Cartão (Opcional)
+                </label>
+                <select
+                  value={bankConnectionId}
+                  onChange={(e) => {
+                    const id = e.target.value;
+                    setBankConnectionId(id);
+                    if (id) {
+                      const card = bankConnections.find(c => c.id === id);
+                      if (card) {
+                        setCreditor(card.bank_name);
+                      }
+                    }
+                  }}
+                  className="w-full p-3 rounded-2xl border border-border bg-background text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 text-foreground font-semibold"
+                >
+                  <option value="">Nenhum cartão selecionado</option>
+                  {bankConnections.filter(c => c.status === 'connected').map(card => (
+                    <option key={card.id} value={card.id}>{card.bank_name} (Lim. Disp: {formatBRL(card.limit - card.credit_card_invoice)})</option>
+                  ))}
+                </select>
+              </div>
+
+              {bankConnectionId && (
+                <div className="flex items-center gap-2 px-1">
+                  <input 
+                    type="checkbox" 
+                    id="isExistingDebt"
+                    checked={isExistingDebt}
+                    onChange={(e) => setIsExistingDebt(e.target.checked)}
+                    className="w-4 h-4 rounded border-border text-accent focus:ring-accent"
+                  />
+                  <label htmlFor="isExistingDebt" className="text-xs font-bold text-muted-foreground cursor-pointer">
+                    Dívida Existente (Ignora validação de limite disponível)
+                  </label>
+                </div>
+              )}
+
               {/* Creditor and Name Row */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -348,7 +389,7 @@ export default function DebtsPage() {
                   </label>
                   <input 
                     type="text" 
-                    placeholder="Ex: Santander"
+                    placeholder="Ex: Banco do Brasil"
                     value={creditor}
                     onChange={(e) => setCreditor(e.target.value)}
                     className="w-full p-3 rounded-2xl border border-border bg-background text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 text-foreground font-semibold transition-all"
