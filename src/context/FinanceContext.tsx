@@ -454,16 +454,16 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     // Logo emoji builder
     let logo = '🏦';
     const nameLower = bankName.toLowerCase();
-    if (nameLower.includes('nubank')) logo = '💜';
-    else if (nameLower.includes('brasil')) logo = '💛';
-    else if (nameLower.includes('itaú') || nameLower.includes('itau')) logo = '🧡';
-    else if (nameLower.includes('bradesco')) logo = '❤️';
-    else if (nameLower.includes('inter')) logo = '🧡';
-    else if (nameLower.includes('santander')) logo = '❤️';
-    else if (nameLower.includes('caixa')) logo = '💙';
-    else if (nameLower.includes('c6')) logo = '🖤';
-    else if (nameLower.includes('mercado')) logo = '💙';
-    else if (nameLower.includes('picpay')) logo = '💚';
+    if (nameLower.includes('nubank')) logo = '/logos/nubank.png';
+    else if (nameLower.includes('brasil')) logo = '/logos/banco_do_brasil.png';
+    else if (nameLower.includes('itaú') || nameLower.includes('itau')) logo = '/logos/itau.png';
+    else if (nameLower.includes('bradesco')) logo = '/logos/bradesco.png';
+    else if (nameLower.includes('inter')) logo = '/logos/inter.png';
+    else if (nameLower.includes('santander')) logo = '/logos/santander.png';
+    else if (nameLower.includes('caixa')) logo = '/logos/caixa.png';
+    else if (nameLower.includes('c6')) logo = '/logos/c6bank.png';
+    else if (nameLower.includes('mercado')) logo = '/logos/mercado_pago.png';
+    else if (nameLower.includes('picpay')) logo = '/logos/picpay.png';
 
     const bankConnection: BankConnection = {
       id,

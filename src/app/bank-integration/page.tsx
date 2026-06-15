@@ -17,62 +17,17 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-// Bank SVG Logos
+// Bank Image Logos
 const BankLogos: Record<string, React.ReactNode> = {
-  'Nubank': (
-    <svg viewBox="0 0 100 100" className="w-12 h-12">
-      <rect fill="#8B2E8F" width="100" height="100" rx="8"/>
-      <text x="50" y="60" fontSize="40" fontWeight="bold" fill="white" textAnchor="middle" fontFamily="Arial">ν</text>
-    </svg>
-  ),
-  'Itaú': (
-    <svg viewBox="0 0 100 100" className="w-12 h-12">
-      <rect fill="#FF6B35" width="100" height="100" rx="8"/>
-      <text x="50" y="60" fontSize="32" fontWeight="bold" fill="white" textAnchor="middle" fontFamily="Arial">Itaú</text>
-    </svg>
-  ),
-  'Bradesco': (
-    <svg viewBox="0 0 100 100" className="w-12 h-12">
-      <rect fill="#DC143C" width="100" height="100" rx="8"/>
-      <text x="50" y="60" fontSize="28" fontWeight="bold" fill="white" textAnchor="middle" fontFamily="Arial">Bradesco</text>
-    </svg>
-  ),
-  'Santander': (
-    <svg viewBox="0 0 100 100" className="w-12 h-12">
-      <rect fill="#E41E3F" width="100" height="100" rx="8"/>
-      <text x="50" y="60" fontSize="28" fontWeight="bold" fill="white" textAnchor="middle" fontFamily="Arial">Santander</text>
-    </svg>
-  ),
-  'Banco do Brasil': (
-    <svg viewBox="0 0 100 100" className="w-12 h-12">
-      <rect fill="#FFD700" width="100" height="100" rx="8"/>
-      <text x="50" y="60" fontSize="28" fontWeight="bold" fill="#003366" textAnchor="middle" fontFamily="Arial">BB</text>
-    </svg>
-  ),
-  'Inter': (
-    <svg viewBox="0 0 100 100" className="w-12 h-12">
-      <rect fill="#FF6B00" width="100" height="100" rx="8"/>
-      <text x="50" y="60" fontSize="32" fontWeight="bold" fill="white" textAnchor="middle" fontFamily="Arial">Inter</text>
-    </svg>
-  ),
-  'C6 Bank': (
-    <svg viewBox="0 0 100 100" className="w-12 h-12">
-      <rect fill="#1D1D1D" width="100" height="100" rx="8"/>
-      <text x="50" y="60" fontSize="32" fontWeight="bold" fill="white" textAnchor="middle" fontFamily="Arial">C6</text>
-    </svg>
-  ),
-  'Mercado Pago': (
-    <svg viewBox="0 0 100 100" className="w-12 h-12">
-      <rect fill="#3483FA" width="100" height="100" rx="8"/>
-      <text x="50" y="60" fontSize="24" fontWeight="bold" fill="white" textAnchor="middle" fontFamily="Arial">MP</text>
-    </svg>
-  ),
-  'PicPay': (
-    <svg viewBox="0 0 100 100" className="w-12 h-12">
-      <rect fill="#52C41A" width="100" height="100" rx="8"/>
-      <text x="50" y="60" fontSize="28" fontWeight="bold" fill="white" textAnchor="middle" fontFamily="Arial">PP</text>
-    </svg>
-  ),
+  'Nubank': <img src="/logos/nubank.png" alt="Nubank" className="w-12 h-12 object-contain bg-white rounded-lg p-1" />,
+  'Itaú': <img src="/logos/itau.png" alt="Itaú" className="w-12 h-12 object-contain bg-white rounded-lg p-1" />,
+  'Bradesco': <img src="/logos/bradesco.png" alt="Bradesco" className="w-12 h-12 object-contain bg-white rounded-lg p-1" />,
+  'Santander': <img src="/logos/santander.png" alt="Santander" className="w-12 h-12 object-contain bg-white rounded-lg p-1" />,
+  'Banco do Brasil': <img src="/logos/banco_do_brasil.png" alt="Banco do Brasil" className="w-12 h-12 object-contain bg-white rounded-lg p-1" />,
+  'Inter': <img src="/logos/inter.png" alt="Inter" className="w-12 h-12 object-contain bg-white rounded-lg p-1" />,
+  'C6 Bank': <img src="/logos/c6bank.png" alt="C6 Bank" className="w-12 h-12 object-contain bg-white rounded-lg p-1" />,
+  'Mercado Pago': <img src="/logos/mercado_pago.png" alt="Mercado Pago" className="w-12 h-12 object-contain bg-white rounded-lg p-1" />,
+  'PicPay': <img src="/logos/picpay.png" alt="PicPay" className="w-12 h-12 object-contain bg-white rounded-lg p-1" />,
 };
 
 // Bank gradient colors
@@ -223,7 +178,9 @@ export default function BankIntegrationPage() {
                 <div className="relative p-6 text-white space-y-4 h-full flex flex-col justify-between">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-3">
-                      {BankLogos[conn.bank_name] || (
+                      {conn.logo && conn.logo.startsWith('/') ? (
+                        <img src={conn.logo} alt={conn.bank_name} className="w-12 h-12 object-contain bg-white rounded-lg p-1" />
+                      ) : BankLogos[conn.bank_name] || (
                         <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
                           <CreditCard className="w-6 h-6" />
                         </div>
