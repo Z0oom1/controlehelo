@@ -132,12 +132,14 @@ export default function DebtsPage() {
   };
 
   const handlePayInstallment = (id: string) => {
-    payDebtInstallment(id);
-    confetti({
-      particleCount: 150,
-      spread: 80,
-      colors: ['#FFB7C5', '#FF4D6D', '#FFCCD5', '#FFFFFF']
-    });
+    const success = payDebtInstallment(id);
+    if (success) {
+      confetti({
+        particleCount: 150,
+        spread: 80,
+        colors: ['#FFB7C5', '#FF4D6D', '#FFCCD5', '#FFFFFF']
+      });
+    }
   };
 
   // Calculations for general progress
@@ -285,9 +287,14 @@ export default function DebtsPage() {
                     </span>
                     <button
                       onClick={() => handlePayInstallment(debt.id)}
-                      className="px-3.5 py-1.5 bg-primary hover:bg-primary-hover text-primary-foreground font-bold rounded-xl shadow-sm transition-colors text-xs cursor-pointer"
+                      disabled={dinheiroEmConta < (debt.current_value / debt.remaining_installments)}
+                      className={`px-3.5 py-1.5 font-bold rounded-xl shadow-sm transition-colors text-xs cursor-pointer ${
+                        dinheiroEmConta < (debt.current_value / debt.remaining_installments)
+                          ? 'bg-muted text-muted-foreground cursor-not-allowed opacity-60'
+                          : 'bg-primary hover:bg-primary-hover text-primary-foreground'
+                      }`}
                     >
-                      Pagar Parcela
+                      {dinheiroEmConta < (debt.current_value / debt.remaining_installments) ? 'Saldo Insuficiente' : 'Pagar Parcela'}
                     </button>
                   </div>
                 </div>

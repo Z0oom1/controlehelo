@@ -19,7 +19,7 @@ interface FinanceContextType extends FinanceState {
   addDebt: (d: Omit<Debt, 'id'>) => void;
   deleteDebt: (id: string) => void;
   updateDebt: (d: Debt) => void;
-  payDebtInstallment: (id: string) => void;
+  payDebtInstallment: (id: string) => boolean;
   addGoal: (g: Omit<Goal, 'id'>) => void;
   deleteGoal: (id: string) => void;
   updateGoalProgress: (id: string, amount: number) => void;
@@ -283,11 +283,25 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setDebts(prev => prev.map(d => d.id === updated.id ? updated : d));
   };
 
-  const payDebtInstallment = (id: string) => {
+  const payDebtInstallment = (id: string): boolean => {
+    const debt = debts.find(d => d.id === id);
+    if (!debt) return false;
+
+    const installmentValue = debt.current_value / debt.remaining_installments;
+
+    // Trava de segurança: verificar se há saldo total suficiente
+    if (dinheiroEmConta < installmentValue) {
+      addSystemNotification(
+        'Saldo Insuficiente',
+        `Você não possui saldo suficiente (R$ ${dinheiroEmConta.toFixed(2)}) para pagar esta parcela de R$ ${installmentValue.toFixed(2)}.`,
+        'warning'
+      );
+      return false;
+    }
+
     setDebts(prev => {
       return prev.map(d => {
         if (d.id === id) {
-          const installmentValue = d.current_value / d.remaining_installments;
           const nextRemaining = d.remaining_installments - 1;
           const nextValue = nextRemaining === 0 ? 0 : d.current_value - installmentValue;
           
@@ -304,19 +318,17 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
           });
 
           // Abater do saldo bancário (primeira conta conectada ou saldo geral)
-          if (bankConnections.length > 0) {
-            setBankConnections(prevBanks => {
-              const updatedBanks = [...prevBanks];
-              // Tenta abater da conta do próprio cartão se houver saldo, senão da primeira conta com saldo
-              let bankToDeduct = updatedBanks.find(b => b.id === d.bank_connection_id && b.balance >= installmentValue);
-              if (!bankToDeduct) bankToDeduct = updatedBanks.find(b => b.balance >= installmentValue);
-              if (!bankToDeduct) bankToDeduct = updatedBanks[0]; // Fallback para a primeira
+          setBankConnections(prevBanks => {
+            const updatedBanks = [...prevBanks];
+            // Tenta abater da conta do próprio cartão se houver saldo, senão da primeira conta com saldo
+            let bankToDeduct = updatedBanks.find(b => b.id === d.bank_connection_id && b.balance >= installmentValue);
+            if (!bankToDeduct) bankToDeduct = updatedBanks.find(b => b.balance >= installmentValue);
+            if (!bankToDeduct) bankToDeduct = updatedBanks[0]; // Fallback para a primeira
 
-              return updatedBanks.map(b => 
-                b.id === bankToDeduct?.id ? { ...b, balance: b.balance - installmentValue } : b
-              );
-            });
-          }
+            return updatedBanks.map(b => 
+              b.id === bankToDeduct?.id ? { ...b, balance: b.balance - installmentValue } : b
+            );
+          });
 
           // System Notification
           if (nextRemaining === 0) {
@@ -350,6 +362,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         return d;
       }).filter(d => d.remaining_installments > 0 || d.current_value > 0);
     });
+
+    return true;
   };
 
   // Goals Handlers
