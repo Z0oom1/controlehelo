@@ -150,8 +150,8 @@ export default function BankIntegrationPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight">Minhas Contas e Cartões</h1>
-          <p className="text-sm text-muted-foreground">Cadastre e gerencie suas contas bancárias com uma experiência premium.</p>
+          <h1 className="text-2xl font-extrabold tracking-tight">Meus Cartões e Contas</h1>
+          <p className="text-sm text-muted-foreground">Gerencie seus cartões e contas bancárias de forma integrada com suas dívidas.</p>
         </div>
       </div>
 
@@ -240,7 +240,7 @@ export default function BankIntegrationPage() {
           <div className="bg-card border border-border p-6 rounded-3xl space-y-4 shadow-sm">
             <h3 className="font-extrabold text-base flex items-center gap-1.5">
               <Plus className="w-5 h-5 text-accent" />
-              Cadastrar Nova Conta Bancária
+              Cadastrar Novo Cartão ou Conta
             </h3>
             
             <form onSubmit={handleAddManualAccount} className="space-y-4 text-xs">

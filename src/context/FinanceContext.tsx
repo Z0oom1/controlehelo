@@ -177,6 +177,58 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const totalDividas = debts.reduce((acc, d) => acc + d.current_value, 0);
   const totalFaturasAberto = bankConnections.reduce((acc, c) => acc + c.credit_card_invoice, 0);
   
+  // Sincronizar faturas com dívidas
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    const currentCardDebts = debts.filter(d => d.bank_connection_id);
+    let updatedDebts = [...debts];
+    let hasChanges = false;
+
+    bankConnections.forEach(conn => {
+      if (conn.credit_card_invoice > 0) {
+        const existingDebt = currentCardDebts.find(d => d.bank_connection_id === conn.id);
+        if (existingDebt) {
+          if (existingDebt.current_value !== conn.credit_card_invoice) {
+            updatedDebts = updatedDebts.map(d => 
+              d.id === existingDebt.id 
+                ? { ...d, current_value: conn.credit_card_invoice, original_value: conn.credit_card_invoice } 
+                : d
+            );
+            hasChanges = true;
+          }
+        } else {
+          // Criar nova dívida para a fatura
+          const newDebt: Debt = {
+            id: 'd_card_' + conn.id,
+            name: `Fatura Cartão - ${conn.bank_name}`,
+            original_value: conn.credit_card_invoice,
+            current_value: conn.credit_card_invoice,
+            interest_rate: 0,
+            total_installments: 1,
+            remaining_installments: 1,
+            due_date: new Date().toISOString().split('T')[0], // Default to today or next cycle
+            creditor: conn.bank_name,
+            bank_connection_id: conn.id
+          };
+          updatedDebts.push(newDebt);
+          hasChanges = true;
+        }
+      } else {
+        // Se a fatura é 0, remover a dívida correspondente se existir
+        const existingDebt = currentCardDebts.find(d => d.bank_connection_id === conn.id);
+        if (existingDebt) {
+          updatedDebts = updatedDebts.filter(d => d.id !== existingDebt.id);
+          hasChanges = true;
+        }
+      }
+    });
+
+    if (hasChanges) {
+      setDebts(updatedDebts);
+    }
+  }, [bankConnections, isLoaded]);
+  
   // Total investido is set to 0 as mock data is removed
   const totalInvestido = 0; 
 
@@ -251,6 +303,21 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
             observations: `Instituição: ${d.creditor}. Restam ${nextRemaining} parcelas.`
           });
 
+          // Abater do saldo bancário (primeira conta conectada ou saldo geral)
+          if (bankConnections.length > 0) {
+            setBankConnections(prevBanks => {
+              const updatedBanks = [...prevBanks];
+              // Tenta abater da conta do próprio cartão se houver saldo, senão da primeira conta com saldo
+              let bankToDeduct = updatedBanks.find(b => b.id === d.bank_connection_id && b.balance >= installmentValue);
+              if (!bankToDeduct) bankToDeduct = updatedBanks.find(b => b.balance >= installmentValue);
+              if (!bankToDeduct) bankToDeduct = updatedBanks[0]; // Fallback para a primeira
+
+              return updatedBanks.map(b => 
+                b.id === bankToDeduct?.id ? { ...b, balance: b.balance - installmentValue } : b
+              );
+            });
+          }
+
           // System Notification
           if (nextRemaining === 0) {
             addSystemNotification(
@@ -264,6 +331,13 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
               `Você pagou R$ ${installmentValue.toFixed(2)} da dívida "${d.name}". Restam ${nextRemaining} parcelas.`,
               'success'
             );
+          }
+
+          // Se for uma dívida de cartão, zerar a fatura no BankConnection
+          if (d.bank_connection_id) {
+            setBankConnections(prevBanks => prevBanks.map(b => 
+              b.id === d.bank_connection_id ? { ...b, credit_card_invoice: 0 } : b
+            ));
           }
 
           return {

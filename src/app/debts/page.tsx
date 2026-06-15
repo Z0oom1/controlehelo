@@ -216,33 +216,36 @@ export default function DebtsPage() {
               const paidAmount = debt.original_value - debt.current_value;
               const progressPercent = (paidAmount / debt.original_value) * 100;
               const installmentValue = debt.current_value / debt.remaining_installments;
+              const isCardDebt = !!debt.bank_connection_id;
 
               return (
-                <div key={debt.id} className="bg-card border border-border p-5 rounded-3xl shadow-sm space-y-4 relative hover:border-primary/40 transition-colors group">
+                <div key={debt.id} className={`bg-card border ${isCardDebt ? 'border-accent/40 bg-accent/5' : 'border-border'} p-5 rounded-3xl shadow-sm space-y-4 relative hover:border-primary/40 transition-colors group`}>
                   <div className="flex justify-between items-start">
                     <div className="space-y-1">
-                      <span className="text-[9px] uppercase font-bold text-accent bg-primary/20 px-2 py-0.5 rounded-md">
-                        {debt.creditor}
+                      <span className={`text-[9px] uppercase font-bold ${isCardDebt ? 'text-white bg-accent' : 'text-accent bg-primary/20'} px-2 py-0.5 rounded-md`}>
+                        {isCardDebt ? 'Fatura de Cartão' : debt.creditor}
                       </span>
                       <h4 className="font-extrabold text-sm text-foreground block">{debt.name}</h4>
                     </div>
                     
-                    <div className="flex gap-1">
-                      <button 
-                        onClick={() => handleStartEdit(debt)}
-                        className="opacity-0 group-hover:opacity-100 p-1.5 text-muted-foreground hover:text-accent rounded-lg hover:bg-muted transition-all cursor-pointer"
-                        title="Editar dívida"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button 
-                        onClick={() => deleteDebt(debt.id)}
-                        className="opacity-0 group-hover:opacity-100 p-1.5 text-muted-foreground hover:text-red-500 rounded-lg hover:bg-muted transition-all cursor-pointer"
-                        title="Excluir dívida"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+                    {!isCardDebt && (
+                      <div className="flex gap-1">
+                        <button 
+                          onClick={() => handleStartEdit(debt)}
+                          className="opacity-0 group-hover:opacity-100 p-1.5 text-muted-foreground hover:text-accent rounded-lg hover:bg-muted transition-all cursor-pointer"
+                          title="Editar dívida"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={() => deleteDebt(debt.id)}
+                          className="opacity-0 group-hover:opacity-100 p-1.5 text-muted-foreground hover:text-red-500 rounded-lg hover:bg-muted transition-all cursor-pointer"
+                          title="Excluir dívida"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   {/* Clean stats row */}

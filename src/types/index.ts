@@ -29,6 +29,7 @@ export interface Debt {
   remaining_installments: number;
   due_date: string; // YYYY-MM-DD
   creditor: string;
+  bank_connection_id?: string; // Link to a credit card invoice
 }
 
 export interface Goal {

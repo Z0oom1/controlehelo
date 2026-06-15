@@ -61,7 +61,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     { name: 'Dívidas', href: '/debts', icon: CreditCard },
     { name: 'Caixinhas', href: '/caixinhas', icon: PiggyBank },
     { name: 'Transações', href: '/transactions', icon: TrendingUp },
-    { name: 'Integrações', href: '/bank-integration', icon: Landmark },
+    { name: 'Cartões', href: '/bank-integration', icon: CreditCard },
     { name: 'Calendário', href: '/calendar', icon: Calendar },
     { name: 'Assistente Virtual', href: '/helozinha', icon: Sparkles },
   ];
