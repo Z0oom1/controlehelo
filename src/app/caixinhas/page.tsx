@@ -274,7 +274,9 @@ export default function CaixinhasPage() {
       {/* Box Management Modal */}
       {manageBoxId && (
         <div className="fixed inset-0 bg-black/55 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="glass-panel border border-border/60 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-3 duration-300">
+          <div className="modal-sheet w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-3 duration-300 relative">
+            {/* iOS handle pill */}
+            <div className="w-12 h-1.5 bg-muted-foreground/20 dark:bg-muted-foreground/30 rounded-full mx-auto mt-3 -mb-2" />
             <div className="p-6 border-b border-border/40 flex justify-between items-center bg-gradient-to-r from-primary/5 to-accent/5 select-none">
               <div>
                 <h3 className="font-extrabold text-lg text-foreground flex items-center gap-2 font-outfit">
@@ -350,7 +352,9 @@ export default function CaixinhasPage() {
       {/* Deposit Modal */}
       {activeModal === 'deposit' && (
         <div className="fixed inset-0 bg-black/55 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="glass-panel border border-border/60 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-3 duration-300">
+          <div className="modal-sheet w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-3 duration-300 relative">
+            {/* iOS handle pill */}
+            <div className="w-12 h-1.5 bg-muted-foreground/20 dark:bg-muted-foreground/30 rounded-full mx-auto mt-3 -mb-2" />
             <div className="p-6 border-b border-border/40 flex justify-between items-center bg-gradient-to-r from-green-500/10 to-green-600/10 select-none">
               <div>
                 <h3 className="font-extrabold text-lg flex items-center gap-2 text-foreground font-outfit">
@@ -390,7 +394,9 @@ export default function CaixinhasPage() {
       {/* Withdraw Modal */}
       {activeModal === 'withdraw' && (
         <div className="fixed inset-0 bg-black/55 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="glass-panel border border-border/60 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-3 duration-300">
+          <div className="modal-sheet w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-3 duration-300 relative">
+            {/* iOS handle pill */}
+            <div className="w-12 h-1.5 bg-muted-foreground/20 dark:bg-muted-foreground/30 rounded-full mx-auto mt-3 -mb-2" />
             <div className="p-6 border-b border-border/40 flex justify-between items-center bg-gradient-to-r from-blue-500/10 to-blue-600/10 select-none">
               <div>
                 <h3 className="font-extrabold text-lg flex items-center gap-2 text-foreground font-outfit">
@@ -430,7 +436,9 @@ export default function CaixinhasPage() {
       {/* Transfer Modal */}
       {activeModal === 'transfer' && (
         <div className="fixed inset-0 bg-black/55 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="glass-panel border border-border/60 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-3 duration-300">
+          <div className="modal-sheet w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-3 duration-300 relative">
+            {/* iOS handle pill */}
+            <div className="w-12 h-1.5 bg-muted-foreground/20 dark:bg-muted-foreground/30 rounded-full mx-auto mt-3 -mb-2" />
             <div className="p-6 border-b border-border/40 flex justify-between items-center bg-gradient-to-r from-accent/10 to-primary/10 select-none">
               <div>
                 <h3 className="font-extrabold text-lg flex items-center gap-2 text-foreground font-outfit">
@@ -484,7 +492,9 @@ export default function CaixinhasPage() {
       {/* Create / Edit Modal */}
       {activeModal === 'create' && (
         <div className="fixed inset-0 bg-black/55 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="glass-panel border border-border/60 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-3 duration-300">
+          <div className="modal-sheet w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-3 duration-300 relative">
+            {/* iOS handle pill */}
+            <div className="w-12 h-1.5 bg-muted-foreground/20 dark:bg-muted-foreground/30 rounded-full mx-auto mt-3 -mb-2" />
             <div className="p-6 border-b border-border/40 flex justify-between items-center bg-gradient-to-r from-primary/5 to-accent/5 select-none">
               <div>
                 <h3 className="font-extrabold text-lg text-foreground flex items-center gap-2 font-outfit">
