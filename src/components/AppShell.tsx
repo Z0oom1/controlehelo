@@ -69,18 +69,25 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background text-foreground transition-colors duration-300">
+    <div className="flex h-screen overflow-hidden bg-background text-foreground transition-colors duration-300 relative font-inter">
       
+      {/* Ambient background glowing circles/blobs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute -top-[10%] -right-[10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-br from-pink-500/15 to-purple-600/5 blur-[120px] dark:from-pink-500/10 dark:to-purple-600/5 animate-pulse-slow" />
+        <div className="absolute -bottom-[10%] -left-[10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-tr from-cyan-500/15 to-indigo-600/5 blur-[120px] dark:from-cyan-500/10 dark:to-indigo-600/5 animate-pulse-slow" style={{ animationDelay: '-4s' }} />
+        <div className="absolute top-[35%] left-[25%] w-[35vw] h-[35vw] rounded-full bg-gradient-to-r from-blue-500/10 to-teal-400/5 blur-[100px] dark:from-blue-500/5 dark:to-teal-400/3 animate-float" />
+      </div>
+
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex md:flex-col md:w-64 lg:w-72 bg-card border-r border-border shrink-0 transition-colors duration-300">
+      <aside className="hidden md:flex md:flex-col md:w-64 lg:w-72 glass-panel border-r border-border/60 shrink-0 transition-colors duration-300 z-10">
         {/* Brand */}
-        <div className="p-6 border-b border-border flex items-center gap-3 select-none">
-          <div className="w-9 h-9 rounded-xl bg-accent flex items-center justify-center text-white text-sm font-bold shadow-sm">
+        <div className="p-6 border-b border-border/60 flex items-center gap-3 select-none">
+          <div className="w-9 h-9 rounded-xl bg-accent flex items-center justify-center text-white text-sm font-bold shadow-md shadow-accent/20">
             HF
           </div>
           <div>
-            <h1 className="font-bold text-sm leading-none tracking-tight text-foreground">Helo Finanças</h1>
-            <span className="text-[10px] text-muted-foreground">Gestão Pessoal</span>
+            <h1 className="font-bold text-sm leading-none tracking-tight text-foreground font-outfit">Helo Finanças</h1>
+            <span className="text-[10px] text-muted-foreground font-medium">Gestão Pessoal</span>
           </div>
         </div>
 
@@ -95,8 +102,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 href={item.href}
                 className={`flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group ${
                   isActive 
-                    ? 'bg-primary text-primary-foreground shadow-sm' 
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    ? 'glass-card text-foreground shadow-sm font-semibold border-white/20 dark:border-white/10 scale-102' 
+                    : 'text-muted-foreground hover:bg-muted/30 hover:text-foreground'
                 }`}
               >
                 <Icon className={`w-5 h-5 transition-transform duration-200 group-hover:scale-110 ${isActive ? 'text-accent' : 'text-muted-foreground'}`} />
@@ -109,49 +116,46 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         {/* Profile Footer */}
         <div 
           onClick={() => setShowProfileSettings(true)}
-          className="p-4 border-t border-border bg-muted/30 flex items-center justify-between gap-2 cursor-pointer hover:bg-muted/50 transition-colors"
+          className="p-4 border-t border-border/60 bg-muted/20 flex items-center justify-between gap-2 cursor-pointer hover:bg-muted/30 transition-colors"
           title="Configurar Perfil"
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-accent/20 border border-primary flex items-center justify-center font-bold text-accent shrink-0">
+            <div className="w-10 h-10 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center font-bold text-accent shrink-0 shadow-inner">
               {profile.name ? profile.name.charAt(0).toUpperCase() : 'U'}
             </div>
             <div className="truncate">
-              <p className="text-sm font-semibold truncate">{profile.name || 'Usuário'}</p>
+              <p className="text-sm font-semibold truncate text-foreground">{profile.name || 'Usuário'}</p>
               <p className="text-xs text-muted-foreground">Premium</p>
             </div>
           </div>
           <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleTheme();
-            }} 
-            className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+            onClick={(e) => { e.stopPropagation(); toggleTheme(); }} 
+            className="p-2 rounded-lg hover:bg-muted/40 text-muted-foreground hover:text-foreground transition-colors"
             title="Alternar Tema"
           >
-            {theme === 'dark' ? <Sun className="w-5 h-5 text-yellow" /> : <Moon className="w-5 h-5" />}
+            {theme === 'dark' ? <Sun className="w-5 h-5 text-yellow-500" /> : <Moon className="w-5 h-5" />}
           </button>
         </div>
       </aside>
 
       {/* Main Work Area */}
-      <div className="flex flex-col flex-1 h-full overflow-hidden relative">
+      <div className="flex flex-col flex-1 h-full overflow-hidden relative z-10">
         
         {/* Top Header */}
-        <header className="h-16 border-b border-border bg-card/65 backdrop-blur-md flex items-center justify-between px-6 shrink-0 z-30 transition-colors duration-300">
+        <header className="h-16 border-b border-border/60 glass-panel flex items-center justify-between px-6 shrink-0 z-30 transition-colors duration-300">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden p-2 rounded-lg hover:bg-muted text-muted-foreground"
+              className="md:hidden p-2 rounded-lg hover:bg-muted/30 text-muted-foreground"
             >
               <Menu className="w-6 h-6" />
             </button>
-            <h2 className="hidden md:block font-bold text-lg text-foreground">
+            <h2 className="hidden md:block font-bold text-lg text-foreground font-outfit">
               {menuItems.find(item => item.href === pathname)?.name || 'Controle Financeiro'}
             </h2>
             <div className="md:hidden flex items-center gap-2">
               <span className="w-6 h-6 rounded-lg bg-accent flex items-center justify-center text-white text-[10px] font-extrabold shadow-sm">HF</span>
-              <span className="font-bold text-xs">Helo Finanças</span>
+              <span className="font-bold text-xs font-outfit">Helo Finanças</span>
             </div>
           </div>
 
@@ -159,7 +163,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             {/* Toggle show/hide values */}
             <button 
               onClick={toggleShowValues} 
-              className="p-2.5 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-all"
+              className="p-2.5 rounded-full hover:bg-muted/30 text-muted-foreground hover:text-foreground transition-all"
               title={showValues ? "Ocultar Valores" : "Exibir Valores"}
             >
               {showValues ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -169,11 +173,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             <div className="relative">
               <button 
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="p-2.5 rounded-full hover:bg-muted relative text-muted-foreground hover:text-foreground transition-all"
+                className="p-2.5 rounded-full hover:bg-muted/30 relative text-muted-foreground hover:text-foreground transition-all"
               >
                 <Bell className="w-5 h-5" />
                 {unreadCount > 0 && (
-                  <span className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-accent border-2 border-card flex items-center justify-center text-[10px] font-bold text-white shadow-sm">
+                  <span className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-accent border-2 border-background flex items-center justify-center text-[10px] font-bold text-white shadow-sm">
                     {unreadCount}
                   </span>
                 )}
@@ -181,9 +185,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
               {/* Notification Drawer */}
               {showNotifications && (
-                <div className="absolute right-0 mt-3 w-80 sm:w-96 bg-card border border-border rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-3 duration-200">
-                  <div className="p-4 border-b border-border flex items-center justify-between bg-muted/20">
-                    <span className="font-bold text-sm">Notificações</span>
+                <div className="absolute right-0 mt-3 w-80 sm:w-96 glass-panel border border-border/60 rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-3 duration-200">
+                  <div className="p-4 border-b border-border/60 flex items-center justify-between bg-muted/20">
+                    <span className="font-bold text-sm font-outfit">Notificações</span>
                     {unreadCount > 0 && (
                       <button 
                         onClick={clearNotifications}
@@ -193,7 +197,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                       </button>
                     )}
                   </div>
-                  <div className="max-h-80 overflow-y-auto divide-y divide-border">
+                  <div className="max-h-80 overflow-y-auto divide-y divide-border/40">
                     {notifications.length === 0 ? (
                       <div className="p-8 text-center text-muted-foreground text-xs">
                         Nenhuma notificação por aqui.
@@ -202,16 +206,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                       notifications.map((notif) => (
                         <div 
                           key={notif.id} 
-                          className={`p-4 transition-colors ${notif.read ? 'bg-transparent' : 'bg-primary/5 hover:bg-primary/10'}`}
+                          className={`p-4 transition-colors ${notif.read ? 'bg-transparent' : 'bg-accent/5 hover:bg-accent/10'}`}
                         >
                           <div className="flex justify-between items-start gap-2">
-                            <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                            <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5 font-outfit">
                               {notif.title}
                             </h4>
                             {!notif.read && (
                               <button 
                                 onClick={() => markNotificationRead(notif.id)}
-                                className="p-1 rounded-md hover:bg-muted text-accent"
+                                className="p-1 rounded-md hover:bg-muted/30 text-accent"
                                 title="Marcar como lida"
                               >
                                 <Check className="w-3.5 h-3.5" />
@@ -231,15 +235,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             {/* Mobile-Only Theme Toggle */}
             <button 
               onClick={toggleTheme} 
-              className="md:hidden p-2.5 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground"
+              className="md:hidden p-2.5 rounded-full hover:bg-muted/30 text-muted-foreground hover:text-foreground"
             >
-              {theme === 'dark' ? <Sun className="w-5 h-5 text-yellow" /> : <Moon className="w-5 h-5" />}
+              {theme === 'dark' ? <Sun className="w-5 h-5 text-yellow-500" /> : <Moon className="w-5 h-5" />}
             </button>
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-24 md:pb-6 bg-background/50">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-24 md:pb-6 bg-transparent">
           <div className="max-w-7xl mx-auto space-y-6">
             {children}
           </div>

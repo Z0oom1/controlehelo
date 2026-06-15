@@ -144,12 +144,12 @@ export default function HelozinhaPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-inter">
       
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-extrabold tracking-tight">Assistente Virtual</h1>
-        <p className="text-sm text-muted-foreground">Tire dúvidas sobre suas contas e receba insights automatizados para organizar seu dinheiro de forma inteligente.</p>
+        <h1 className="text-2xl font-black tracking-tight text-foreground font-outfit">Assistente Virtual</h1>
+        <p className="text-sm text-muted-foreground font-medium">Tire dúvidas sobre suas contas e receba insights automatizados para organizar seu dinheiro de forma inteligente.</p>
       </div>
 
       {/* Main Container */}
@@ -157,25 +157,25 @@ export default function HelozinhaPage() {
         
         {/* Helozinha Insights sidebar */}
         <div className="lg:col-span-1 space-y-4">
-          <div className="bg-card border border-border p-5 rounded-2xl space-y-4 shadow-sm">
-            <h3 className="font-extrabold text-sm flex items-center gap-1.5 text-accent">
+          <div className="glass-panel border border-border/50 p-5 rounded-3xl space-y-4 shadow-sm">
+            <h3 className="font-extrabold text-sm flex items-center gap-1.5 text-accent font-outfit">
               <Sparkles className="w-4 h-4 text-accent animate-heartbeat" />
               Insights Automáticos
             </h3>
             
             <div className="space-y-3.5 text-xs">
-              <div className="p-3 bg-muted/30 border border-border rounded-xl space-y-1">
-                <span className="font-bold flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5 text-accent" /> Orçamento Semanal</span>
+              <div className="p-3 bg-muted/20 border border-border/30 rounded-xl space-y-1 glass">
+                <span className="font-bold flex items-center gap-1 font-outfit"><AlertCircle className="w-3.5 h-3.5 text-accent" /> Orçamento Semanal</span>
                 <p className="text-muted-foreground leading-relaxed">Evite gastar mais de R$ 420,00 no lazer ou assinaturas nesta semana.</p>
               </div>
 
-              <div className="p-3 bg-muted/30 border border-border rounded-xl space-y-1">
-                <span className="font-bold flex items-center gap-1"><Clock className="w-3.5 h-3.5 text-accent" /> Quitação Prevista</span>
+              <div className="p-3 bg-muted/20 border border-border/30 rounded-xl space-y-1 glass">
+                <span className="font-bold flex items-center gap-1 font-outfit"><Clock className="w-3.5 h-3.5 text-accent" /> Quitação Prevista</span>
                 <p className="text-muted-foreground leading-relaxed">Mantendo o ritmo de R$ 500,00 ao mês, suas dívidas somem em meados de 2027.</p>
               </div>
 
-              <div className="p-3 bg-muted/30 border border-border rounded-xl space-y-1">
-                <span className="font-bold flex items-center gap-1"><PiggyBank className="w-3.5 h-3.5 text-accent" /> Metas Adiantadas</span>
+              <div className="p-3 bg-muted/20 border border-border/30 rounded-xl space-y-1 glass">
+                <span className="font-bold flex items-center gap-1 font-outfit"><PiggyBank className="w-3.5 h-3.5 text-accent" /> Metas Adiantadas</span>
                 <p className="text-muted-foreground leading-relaxed">Sua meta principal "Guardar R$ 50.000" está 12% adiantada em relação ao prazo original.</p>
               </div>
             </div>
@@ -183,14 +183,14 @@ export default function HelozinhaPage() {
         </div>
 
         {/* Chat window */}
-        <div className="lg:col-span-3 bg-card border border-border rounded-3xl h-[480px] md:h-[550px] flex flex-col justify-between overflow-hidden shadow-sm">
+        <div className="lg:col-span-3 glass-panel border border-border/50 rounded-3xl h-[480px] md:h-[550px] flex flex-col justify-between overflow-hidden shadow-sm">
           {/* Header */}
-          <div className="p-4 border-b border-border flex items-center gap-3 bg-muted/20">
-            <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white text-xl shadow select-none">
+          <div className="p-4 border-b border-border/40 flex items-center gap-3 bg-muted/20">
+            <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white text-xl shadow shadow-accent/20 select-none">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-sm text-foreground">Assistente Virtual</h3>
+              <h3 className="font-bold text-sm text-foreground font-outfit">Assistente Virtual</h3>
               <span className="text-[10px] text-green-500 font-bold flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> Online
               </span>
@@ -207,14 +207,14 @@ export default function HelozinhaPage() {
                   className={`flex items-start gap-2.5 ${isMe ? 'justify-end' : 'justify-start'}`}
                 >
                   {!isMe && (
-                    <div className="w-8 h-8 rounded-full bg-accent/20 border border-primary/40 flex items-center justify-center font-bold text-accent shrink-0 text-sm">
+                    <div className="w-8 h-8 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center font-bold text-accent shrink-0 text-sm select-none">
                       H
                     </div>
                   )}
                   <div className={`max-w-[75%] rounded-2xl p-3.5 shadow-sm text-xs leading-relaxed ${
                     isMe 
-                      ? 'bg-accent text-white rounded-tr-none' 
-                      : 'bg-muted/40 border border-border text-foreground rounded-tl-none'
+                      ? 'bg-gradient-to-r from-accent to-purple-600 text-white rounded-tr-none shadow-md shadow-accent/10 border border-white/10' 
+                      : 'glass border border-border/30 text-foreground rounded-tl-none'
                   }`}>
                     {/* Render newlines */}
                     <div className="whitespace-pre-line">{msg.text}</div>
@@ -223,7 +223,7 @@ export default function HelozinhaPage() {
                     </span>
                   </div>
                   {isMe && (
-                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center font-bold text-primary-foreground shrink-0 text-xs">
+                    <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary flex items-center justify-center font-bold text-foreground shrink-0 text-xs select-none">
                       H
                     </div>
                   )}
@@ -233,10 +233,10 @@ export default function HelozinhaPage() {
 
             {isTyping && (
               <div className="flex items-start gap-2.5">
-                <div className="w-8 h-8 rounded-full bg-accent/20 border border-primary/40 flex items-center justify-center font-bold text-accent shrink-0 text-sm">
+                <div className="w-8 h-8 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center font-bold text-accent shrink-0 text-sm select-none">
                   H
                 </div>
-                <div className="bg-muted/40 border border-border text-foreground rounded-2xl rounded-tl-none p-3.5 max-w-[75%] shadow-sm text-xs">
+                <div className="glass border border-border/30 text-foreground rounded-2xl rounded-tl-none p-3.5 max-w-[75%] shadow-sm text-xs">
                   <div className="flex gap-1 items-center py-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: '0ms' }} />
                     <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -250,12 +250,12 @@ export default function HelozinhaPage() {
           </div>
 
           {/* Quick Prompts row */}
-          <div className="px-4 py-2 border-t border-border bg-muted/10 flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-none">
+          <div className="px-4 py-2 border-t border-border/40 bg-muted/10 flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-none select-none font-outfit">
             {quickPrompts.map((prompt) => (
               <button
                 key={prompt}
                 onClick={() => handleSendMessage(prompt)}
-                className="px-3 py-1.5 bg-card border border-border hover:border-primary/50 text-[10px] font-bold rounded-full transition-all shrink-0 hover:scale-105"
+                className="px-3 py-1.5 glass-card border border-border/40 hover:border-accent/40 text-[10px] font-bold rounded-full transition-all shrink-0 hover:scale-105 cursor-pointer text-foreground"
               >
                 {prompt}
               </button>
@@ -263,18 +263,18 @@ export default function HelozinhaPage() {
           </div>
 
           {/* Input Area */}
-          <div className="p-3 border-t border-border flex gap-2 bg-card">
+          <div className="p-3 border-t border-border/40 flex gap-2 bg-transparent">
             <input 
               type="text" 
               placeholder="Pergunte ao Assistente..."
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSendMessage(inputText)}
-              className="flex-1 p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent"
+              className="flex-1 p-2.5 rounded-xl border border-border/40 glass-input text-xs focus:outline-none focus:border-accent text-foreground"
             />
             <button 
               onClick={() => handleSendMessage(inputText)}
-              className="p-2.5 bg-accent hover:bg-accent/90 text-white rounded-xl shadow transition-all hover:scale-105 active:scale-95 shrink-0"
+              className="p-2.5 bg-accent hover:bg-accent/90 text-white rounded-xl shadow-md shadow-accent/15 transition-all hover:scale-105 active:scale-95 shrink-0 cursor-pointer"
             >
               <Send className="w-4 h-4" />
             </button>
