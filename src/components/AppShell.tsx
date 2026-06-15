@@ -122,7 +122,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           </div>
           <button 
-            onClick={toggleTheme} 
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleTheme();
+            }} 
             className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
             title="Alternar Tema"
           >

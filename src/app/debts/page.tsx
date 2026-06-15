@@ -296,132 +296,154 @@ export default function DebtsPage() {
 
       {/* Add / Edit Debt Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/45 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-card border border-border w-full max-w-lg rounded-3xl shadow-xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-5 border-b border-border flex justify-between items-center bg-muted/20 select-none">
-              <h3 className="font-extrabold text-sm flex items-center gap-1.5 text-accent">
-                {editDebtId ? "Editar Dívida" : "Cadastrar Nova Dívida"}
-              </h3>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-card border border-border w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-3 duration-300">
+            {/* Header with gradient accent */}
+            <div className="p-6 border-b border-border flex justify-between items-center bg-gradient-to-r from-primary/10 to-accent/10">
+              <div>
+                <h3 className="font-extrabold text-lg flex items-center gap-2 text-foreground">
+                  <CreditCard className="w-5 h-5 text-accent" />
+                  {editDebtId ? "Editar Dívida" : "Cadastrar Nova Dívida"}
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1">Preencha os dados da dívida para rastrear e planejar o pagamento</p>
+              </div>
               <button 
                 onClick={handleCloseModal}
-                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             
-            <form onSubmit={handleSubmit} className="p-5 space-y-4 text-xs">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="font-bold text-muted-foreground">Nome da Dívida *</label>
+            <form onSubmit={handleSubmit} className="p-6 space-y-5">
+              {/* Creditor and Name Row */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="font-bold text-sm text-foreground flex items-center gap-1.5">
+                    <span className="text-accent">*</span> Nome da Dívida
+                  </label>
                   <input 
                     type="text" 
                     placeholder="Ex: Financiamento Carro"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground font-semibold"
+                    className="w-full p-3 rounded-2xl border border-border bg-background text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 text-foreground font-semibold transition-all"
                     required
                     autoFocus
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <label className="font-bold text-muted-foreground">Instituição Credora *</label>
+                <div className="space-y-2">
+                  <label className="font-bold text-sm text-foreground flex items-center gap-1.5">
+                    <span className="text-accent">*</span> Instituição Credora
+                  </label>
                   <input 
                     type="text" 
                     placeholder="Ex: Santander"
                     value={creditor}
                     onChange={(e) => setCreditor(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground font-semibold"
+                    className="w-full p-3 rounded-2xl border border-border bg-background text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 text-foreground font-semibold transition-all"
                     required
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-1.5">
-                  <label className="font-bold text-muted-foreground">Valor Inicial (R$) *</label>
+              {/* Values Row */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <label className="font-bold text-sm text-foreground flex items-center gap-1.5">
+                    <span className="text-accent">*</span> Valor Inicial (R$)
+                  </label>
                   <input 
                     type="number" 
-                    placeholder="Ex: 15000"
+                    placeholder="15000"
                     value={originalValue}
                     onChange={(e) => setOriginalValue(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground"
+                    className="w-full p-3 rounded-2xl border border-border bg-background text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 text-foreground transition-all"
                     required
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <label className="font-bold text-muted-foreground">Valor Restante (R$) *</label>
+                <div className="space-y-2">
+                  <label className="font-bold text-sm text-foreground flex items-center gap-1.5">
+                    <span className="text-accent">*</span> Valor Restante (R$)
+                  </label>
                   <input 
                     type="number" 
-                    placeholder="Ex: 8500"
+                    placeholder="8500"
                     value={currentValue}
                     onChange={(e) => setCurrentValue(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent font-bold text-foreground"
+                    className="w-full p-3 rounded-2xl border border-border bg-background text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 text-foreground font-bold transition-all"
                     required
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <label className="font-bold text-muted-foreground">Juros (% a.m.)</label>
+                <div className="space-y-2">
+                  <label className="font-bold text-sm text-foreground">Juros (% a.m.)</label>
                   <input 
                     type="number" 
                     step="0.01" 
-                    placeholder="Ex: 1.99"
+                    placeholder="1.99"
                     value={interestRate}
                     onChange={(e) => setInterestRate(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground"
+                    className="w-full p-3 rounded-2xl border border-border bg-background text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 text-foreground transition-all"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-1.5">
-                  <label className="font-bold text-muted-foreground">Parcelas Totais *</label>
+              {/* Installments Row */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <label className="font-bold text-sm text-foreground flex items-center gap-1.5">
+                    <span className="text-accent">*</span> Parcelas Totais
+                  </label>
                   <input 
                     type="number" 
-                    placeholder="Ex: 24"
+                    placeholder="24"
                     value={totalInstallments}
                     onChange={(e) => setTotalInstallments(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground"
+                    className="w-full p-3 rounded-2xl border border-border bg-background text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 text-foreground transition-all"
                     required
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <label className="font-bold text-muted-foreground">Restantes *</label>
+                <div className="space-y-2">
+                  <label className="font-bold text-sm text-foreground flex items-center gap-1.5">
+                    <span className="text-accent">*</span> Restantes
+                  </label>
                   <input 
                     type="number" 
-                    placeholder="Ex: 14"
+                    placeholder="14"
                     value={remainingInstallments}
                     onChange={(e) => setRemainingInstallments(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground"
+                    className="w-full p-3 rounded-2xl border border-border bg-background text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 text-foreground transition-all"
                     required
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <label className="font-bold text-muted-foreground">Próx. Vencimento *</label>
+                <div className="space-y-2">
+                  <label className="font-bold text-sm text-foreground flex items-center gap-1.5">
+                    <span className="text-accent">*</span> Próx. Vencimento
+                  </label>
                   <input 
                     type="date"
                     value={dueDate}
                     onChange={(e) => setDueDate(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground font-semibold"
+                    className="w-full p-3 rounded-2xl border border-border bg-background text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 text-foreground font-semibold transition-all"
                     required
                   />
                 </div>
               </div>
 
               {/* Modal Actions */}
-              <div className="pt-4 border-t border-border flex justify-end gap-2.5 select-none">
+              <div className="pt-6 border-t border-border flex justify-end gap-3">
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="px-4 py-2 border border-border hover:bg-muted rounded-xl font-bold cursor-pointer"
+                  className="px-6 py-2.5 border border-border hover:bg-muted rounded-2xl font-bold text-sm cursor-pointer transition-colors"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-accent hover:bg-accent/90 text-white rounded-xl font-bold shadow-sm transition-all cursor-pointer"
+                  className="px-6 py-2.5 bg-accent hover:bg-accent/90 text-white rounded-2xl font-bold text-sm shadow-lg transition-all hover:scale-105 active:scale-95 cursor-pointer"
                 >
-                  {editDebtId ? "Salvar Alterações" : "Salvar"}
+                  {editDebtId ? "Salvar Alterações" : "Cadastrar Dívida"}
                 </button>
               </div>
             </form>

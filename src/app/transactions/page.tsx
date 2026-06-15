@@ -459,112 +459,125 @@ export default function TransactionsPage() {
 
       {/* Modal form overlay */}
       {showAddForm && (
-        <div className="fixed inset-0 bg-black/45 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-card border border-border w-full max-w-lg rounded-3xl shadow-xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-card border border-border w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-3 duration-300 flex flex-col max-h-[90vh]">
             {/* Modal Header */}
-            <div className="p-5 border-b border-border flex justify-between items-center bg-muted/20 select-none">
-              <h3 className="font-extrabold text-sm flex items-center gap-1.5 text-accent">
-                {editTransactionId ? "Editar Lançamento" : "Novo Lançamento"}
-              </h3>
+            <div className="p-6 border-b border-border flex justify-between items-center bg-gradient-to-r from-primary/10 to-accent/10">
+              <div>
+                <h3 className="font-extrabold text-lg flex items-center gap-2 text-foreground">
+                  <TrendingUp className="w-5 h-5 text-accent" />
+                  {editTransactionId ? "Editar Lançamento" : "Novo Lançamento"}
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1">Registre suas transações financeiras com facilidade</p>
+              </div>
               <button 
                 onClick={handleCloseAddForm}
-                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Modal Body / Form */}
-            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4 text-xs">
+            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
               
               {/* Type Switcher */}
-              <div className="space-y-1.5 select-none">
-                <label className="font-bold text-muted-foreground uppercase text-[9px] tracking-wider block">Tipo de Lançamento</label>
-                <div className="grid grid-cols-3 gap-2">
+              <div className="space-y-2">
+                <label className="font-bold text-sm text-foreground">Tipo de Lançamento</label>
+                <div className="grid grid-cols-3 gap-3">
                   <button
                     type="button"
                     onClick={() => handleTypeChange('expense')}
-                    className={`p-2.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+                    className={`p-3 rounded-2xl border-2 text-sm font-bold transition-all cursor-pointer ${
                       type === 'expense' 
-                        ? 'border-red-500 bg-red-500/5 text-red-500 font-bold' 
-                        : 'border-border bg-transparent text-muted-foreground hover:bg-muted'
+                        ? 'border-red-500 bg-red-500/10 text-red-600 dark:text-red-400' 
+                        : 'border-border bg-transparent text-muted-foreground hover:border-red-500/50'
                     }`}
                   >
-                    Despesa Real
+                    <TrendingDown className="w-4 h-4 inline mr-1" />
+                    Despesa
                   </button>
                   <button
                     type="button"
                     onClick={() => handleTypeChange('income')}
-                    className={`p-2.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+                    className={`p-3 rounded-2xl border-2 text-sm font-bold transition-all cursor-pointer ${
                       type === 'income' 
-                        ? 'border-green-500 bg-green-500/5 text-green-500 font-bold' 
-                        : 'border-border bg-transparent text-muted-foreground hover:bg-muted'
+                        ? 'border-green-500 bg-green-500/10 text-green-600 dark:text-green-400' 
+                        : 'border-border bg-transparent text-muted-foreground hover:border-green-500/50'
                     }`}
                   >
-                    Receita Real
+                    <TrendingUp className="w-4 h-4 inline mr-1" />
+                    Receita
                   </button>
                   <button
                     type="button"
                     onClick={() => handleTypeChange('predicted_income')}
-                    className={`p-2.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+                    className={`p-3 rounded-2xl border-2 text-sm font-bold transition-all cursor-pointer ${
                       type === 'predicted_income' 
-                        ? 'border-primary bg-primary/10 text-accent font-bold' 
-                        : 'border-border bg-transparent text-muted-foreground hover:bg-muted'
+                        ? 'border-primary bg-primary/10 text-accent' 
+                        : 'border-border bg-transparent text-muted-foreground hover:border-primary/50'
                     }`}
                   >
-                    Ganho Previsto
+                    <Sparkles className="w-4 h-4 inline mr-1" />
+                    Previsto
                   </button>
                 </div>
               </div>
 
               {/* Main Fields */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="font-bold text-muted-foreground">Descrição *</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="font-bold text-sm text-foreground flex items-center gap-1.5">
+                    <span className="text-accent">*</span> Descrição
+                  </label>
                   <input 
                     type="text" 
                     placeholder="Ex: Assinatura Netflix"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground font-semibold"
+                    className="w-full p-3 rounded-2xl border border-border bg-background text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 text-foreground font-semibold transition-all"
                     required
                     autoFocus
                   />
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="font-bold text-muted-foreground">Valor (R$) *</label>
+                <div className="space-y-2">
+                  <label className="font-bold text-sm text-foreground flex items-center gap-1.5">
+                    <span className="text-accent">*</span> Valor (R$)
+                  </label>
                   <input 
                     type="number" 
                     step="0.01" 
                     placeholder="Ex: 55.90"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent font-bold text-foreground"
+                    className="w-full p-3 rounded-2xl border border-border bg-background text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 font-bold text-foreground transition-all"
                     required
                   />
                 </div>
               </div>
 
               {/* Date and Category */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="font-bold text-muted-foreground">Data do Lançamento *</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="font-bold text-sm text-foreground flex items-center gap-1.5">
+                    <span className="text-accent">*</span> Data do Lançamento
+                  </label>
                   <input 
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground font-semibold"
+                    className="w-full p-3 rounded-2xl border border-border bg-background text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 text-foreground font-semibold transition-all"
                     required
                   />
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="font-bold text-muted-foreground">Categoria</label>
+                <div className="space-y-2">
+                  <label className="font-bold text-sm text-foreground">Categoria</label>
                   <select 
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground font-semibold cursor-pointer"
+                    className="w-full p-3 rounded-2xl border border-border bg-background text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 text-foreground font-semibold cursor-pointer transition-all"
                   >
                     {activeCategories.map(cat => (
                       <option key={cat} value={cat}>{cat}</option>
@@ -574,13 +587,13 @@ export default function TransactionsPage() {
               </div>
 
               {/* Advanced options */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-                <div className="space-y-1.5">
-                  <label className="font-bold text-muted-foreground">Recorrência</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                <div className="space-y-2">
+                  <label className="font-bold text-sm text-foreground">Recorrência</label>
                   <select 
                     value={recurrence}
                     onChange={(e) => setRecurrence(e.target.value as any)}
-                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground font-semibold cursor-pointer"
+                    className="w-full p-3 rounded-2xl border border-border bg-background text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 text-foreground font-semibold cursor-pointer transition-all"
                   >
                     <option value="none">Nenhuma</option>
                     <option value="weekly">Semanal</option>
@@ -589,43 +602,43 @@ export default function TransactionsPage() {
                 </div>
 
                 {type !== 'predicted_income' && (
-                  <div className="flex items-center gap-2 pt-4 select-none">
+                  <div className="flex items-center gap-3 pt-2">
                     <input 
                       type="checkbox" 
                       id="isRealized"
                       checked={isRealized}
                       onChange={(e) => setIsRealized(e.target.checked)}
-                      className="w-4 h-4 rounded accent-accent"
+                      className="w-5 h-5 rounded accent-accent cursor-pointer"
                     />
-                    <label htmlFor="isRealized" className="font-bold text-muted-foreground cursor-pointer">Já foi pago/recebido?</label>
+                    <label htmlFor="isRealized" className="font-bold text-sm text-foreground cursor-pointer">Já foi pago/recebido?</label>
                   </div>
                 )}
               </div>
 
-              <div className="space-y-1.5">
-                <label className="font-bold text-muted-foreground">Observações</label>
+              <div className="space-y-2">
+                <label className="font-bold text-sm text-foreground">Observações (Opcional)</label>
                 <textarea 
                   placeholder="Comentários adicionais sobre este lançamento..."
                   value={observations}
                   onChange={(e) => setObservations(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent h-16 resize-none text-foreground"
+                  className="w-full p-3 rounded-2xl border border-border bg-background text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 h-20 resize-none text-foreground transition-all"
                 />
               </div>
 
               {/* Modal Actions */}
-              <div className="pt-3 border-t border-border flex justify-end gap-2.5 select-none">
+              <div className="pt-6 border-t border-border flex justify-end gap-3">
                 <button 
                   type="button" 
                   onClick={handleCloseAddForm} 
-                  className="px-4 py-2 border border-border hover:bg-muted rounded-xl font-bold cursor-pointer"
+                  className="px-6 py-2.5 border border-border hover:bg-muted rounded-2xl font-bold text-sm cursor-pointer transition-colors"
                 >
                   Cancelar
                 </button>
                 <button 
                   type="submit" 
-                  className="px-5 py-2 bg-accent hover:bg-accent/90 text-white rounded-xl font-bold shadow-sm transition-all cursor-pointer"
+                  className="px-6 py-2.5 bg-accent hover:bg-accent/90 text-white rounded-2xl font-bold text-sm shadow-lg transition-all hover:scale-105 active:scale-95 cursor-pointer"
                 >
-                  {editTransactionId ? "Salvar Alterações" : "Confirmar"}
+                  {editTransactionId ? "Salvar Alterações" : "Confirmar Lançamento"}
                 </button>
               </div>
             </form>
