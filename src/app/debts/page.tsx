@@ -23,7 +23,8 @@ export default function DebtsPage() {
     updateDebt,
     payDebtInstallment, 
     dinheiroEmConta,
-    showValues
+    showValues,
+    bankConnections
   } = useFinanceState();
 
   const [mounted, setMounted] = useState(false);
@@ -40,6 +41,8 @@ export default function DebtsPage() {
   const [totalInstallments, setTotalInstallments] = useState('');
   const [remainingInstallments, setRemainingInstallments] = useState('');
   const [dueDate, setDueDate] = useState('');
+  const [bankConnectionId, setBankConnectionId] = useState('');
+  const [isExistingDebt, setIsExistingDebt] = useState(false);
 
   // Planner state
   const [monthlyAllotment, setMonthlyAllotment] = useState(600);
@@ -70,6 +73,8 @@ export default function DebtsPage() {
     setTotalInstallments(debt.total_installments.toString());
     setRemainingInstallments(debt.remaining_installments.toString());
     setDueDate(debt.due_date);
+    setBankConnectionId(debt.bank_connection_id || '');
+    setIsExistingDebt(debt.is_existing_debt || false);
     setIsModalOpen(true);
   };
 
@@ -88,6 +93,8 @@ export default function DebtsPage() {
     setTotalInstallments('');
     setRemainingInstallments('');
     setDueDate('');
+    setBankConnectionId('');
+    setIsExistingDebt(false);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -107,7 +114,9 @@ export default function DebtsPage() {
         interest_rate: interestRate ? parseFloat(interestRate) : 0,
         total_installments: parseInt(totalInstallments),
         remaining_installments: parseInt(remainingInstallments),
-        due_date: dueDate
+        due_date: dueDate,
+        bank_connection_id: bankConnectionId || undefined,
+        is_existing_debt: isExistingDebt
       });
     } else {
       addDebt({
@@ -118,7 +127,9 @@ export default function DebtsPage() {
         interest_rate: interestRate ? parseFloat(interestRate) : 0,
         total_installments: parseInt(totalInstallments),
         remaining_installments: parseInt(remainingInstallments),
-        due_date: dueDate
+        due_date: dueDate,
+        bank_connection_id: bankConnectionId || undefined,
+        is_existing_debt: isExistingDebt
       });
     }
 

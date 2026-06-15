@@ -579,6 +579,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       balance,
       limit,
       credit_card_invoice: creditCardInvoice,
+      invoices: [],
       logo,
     };
 
