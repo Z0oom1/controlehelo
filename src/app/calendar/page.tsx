@@ -38,7 +38,8 @@ export default function CalendarPage() {
     updateTransaction,
     payDebtInstallment,
     deleteDebt,
-    deleteGoal
+    deleteGoal,
+    showValues
   } = useFinanceState();
 
   const [currentDate, setCurrentDate] = useState(new Date(2026, 5, 3)); // Fixed to June 2026 as current date
@@ -82,6 +83,11 @@ export default function CalendarPage() {
 
   const formatBRL = (val: number) => {
     return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  };
+
+  const displayBRL = (val: number) => {
+    if (!showValues) return 'R$ ••••••';
+    return formatBRL(val);
   };
 
   // Helper calendar grid logic
@@ -430,7 +436,7 @@ export default function CalendarPage() {
                           }}
                           className={`text-[8px] md:text-[9px] px-1 py-0.5 rounded font-semibold truncate text-white leading-tight cursor-context-menu hover:scale-102 hover:brightness-95 transition-all ${bgColor}`}
                         >
-                          {event.title.split(' ')[0]}: {formatBRL(event.amount)}
+                          {event.title.split(' ')[0]}: {displayBRL(event.amount)}
                         </div>
                       );
                     })}
@@ -676,7 +682,7 @@ export default function CalendarPage() {
                         <span className={`font-extrabold text-sm ${
                           event.type === 'expense' || event.type === 'debt' ? 'text-red-500' : 'text-green-600'
                         }`}>
-                          {formatBRL(event.amount)}
+                          {displayBRL(event.amount)}
                         </span>
                         
                         {/* Status updates from agenda modal */}

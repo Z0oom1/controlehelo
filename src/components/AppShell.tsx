@@ -18,7 +18,9 @@ import {
   Bell, 
   Menu, 
   X,
-  Check
+  Check,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
@@ -32,7 +34,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     toggleTheme,
     updateProfile,
     importState,
-    exportState
+    exportState,
+    showValues,
+    toggleShowValues
   } = useFinanceState();
   const [showNotifications, setShowNotifications] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -149,6 +153,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Toggle show/hide values */}
+            <button 
+              onClick={toggleShowValues} 
+              className="p-2.5 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-all"
+              title={showValues ? "Ocultar Valores" : "Exibir Valores"}
+            >
+              {showValues ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            </button>
+
             {/* Notification Bell */}
             <div className="relative">
               <button 

@@ -33,7 +33,8 @@ export default function BankIntegrationPage() {
     bankConnections, 
     connectBankFile, 
     disconnectBank,
-    updateBankConnection
+    updateBankConnection,
+    showValues
   } = useFinanceState();
 
   // Drag and drop states
@@ -65,6 +66,11 @@ export default function BankIntegrationPage() {
 
   const formatBRL = (val: number) => {
     return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  };
+
+  const displayBRL = (val: number) => {
+    if (!showValues) return 'R$ ••••••';
+    return formatBRL(val);
   };
 
   const getBankName = () => {
@@ -437,17 +443,17 @@ export default function BankIntegrationPage() {
                 <div className="mt-4 pt-4 border-t border-border/40 grid grid-cols-2 gap-2 text-xs">
                   <div>
                     <span className="text-[9px] text-muted-foreground block font-semibold">Saldo Disponível</span>
-                    <span className="font-extrabold text-foreground">{formatBRL(conn.balance)}</span>
+                    <span className="font-extrabold text-foreground">{displayBRL(conn.balance)}</span>
                   </div>
                   <div>
                     <span className="text-[9px] text-muted-foreground block font-semibold">Fatura do Cartão</span>
-                    <span className="font-extrabold text-amber-600">{formatBRL(conn.credit_card_invoice)}</span>
+                    <span className="font-extrabold text-amber-600">{displayBRL(conn.credit_card_invoice)}</span>
                   </div>
                   <div className="col-span-2 mt-2">
                     <span className="text-[9px] text-muted-foreground block font-semibold flex items-center gap-1">
                       <CreditCard className="w-3 h-3" /> Limite de Crédito
                     </span>
-                    <span className="font-bold text-foreground">{formatBRL(conn.limit)}</span>
+                    <span className="font-bold text-foreground">{displayBRL(conn.limit)}</span>
                   </div>
                 </div>
 
@@ -657,15 +663,15 @@ export default function BankIntegrationPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
               <div className="p-4 bg-muted/20 border border-border rounded-xl">
                 <span className="text-[10px] text-muted-foreground block font-bold uppercase">Saldo no Extrato</span>
-                <span className="text-base font-extrabold text-foreground">{formatBRL(previewData.balance)}</span>
+                <span className="text-base font-extrabold text-foreground">{displayBRL(previewData.balance)}</span>
               </div>
               <div className="p-4 bg-muted/20 border border-border rounded-xl">
                 <span className="text-[10px] text-muted-foreground block font-bold uppercase">Limite de Crédito</span>
-                <span className="text-base font-extrabold text-foreground">{formatBRL(previewData.limit)}</span>
+                <span className="text-base font-extrabold text-foreground">{displayBRL(previewData.limit)}</span>
               </div>
               <div className="p-4 bg-muted/20 border border-border rounded-xl">
                 <span className="text-[10px] text-muted-foreground block font-bold uppercase">Fatura Pendente</span>
-                <span className="text-base font-extrabold text-amber-600">{formatBRL(previewData.invoice)}</span>
+                <span className="text-base font-extrabold text-amber-600">{displayBRL(previewData.invoice)}</span>
               </div>
             </div>
 
@@ -686,7 +692,7 @@ export default function BankIntegrationPage() {
                       <span className={`font-extrabold text-sm ${
                         tx.type === 'expense' ? 'text-red-500' : 'text-green-600'
                       }`}>
-                        {tx.type === 'expense' ? '-' : '+'} {formatBRL(tx.amount)}
+                        {tx.type === 'expense' ? '-' : '+'} {displayBRL(tx.amount)}
                       </span>
                     </div>
                   ))

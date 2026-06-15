@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFinanceState } from '@/context/FinanceContext';
 import { 
   CreditCard, 
@@ -8,9 +8,8 @@ import {
   Trash2, 
   Sparkles, 
   Calendar, 
-  TrendingUp, 
-  HelpCircle,
-  PiggyBank,
+  ChevronDown,
+  ChevronUp,
   CheckCircle,
   X
 } from 'lucide-react';
@@ -22,10 +21,15 @@ export default function DebtsPage() {
     addDebt, 
     deleteDebt, 
     payDebtInstallment, 
-    dinheiroEmConta 
+    dinheiroEmConta,
+    showValues
   } = useFinanceState();
 
+  const [mounted, setMounted] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showSimulator, setShowSimulator] = useState(false);
+
+  // Form inputs
   const [name, setName] = useState('');
   const [creditor, setCreditor] = useState('');
   const [originalValue, setOriginalValue] = useState('');
@@ -39,8 +43,17 @@ export default function DebtsPage() {
   const [monthlyAllotment, setMonthlyAllotment] = useState(600);
   const [planningMethod, setPlanningMethod] = useState<'snowball' | 'avalanche'>('avalanche');
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const formatBRL = (val: number) => {
     return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  };
+
+  const displayBRL = (val: number) => {
+    if (!showValues) return 'R$ ••••••';
+    return formatBRL(val);
   };
 
   const handleOpenModal = () => setIsModalOpen(true);
@@ -112,7 +125,6 @@ export default function DebtsPage() {
   const estimatedInterestRate = debts.reduce((acc, d) => acc + (d.interest_rate * d.current_value), 0) / (totalCurrent || 1);
   const standardTime = debts.reduce((acc, d) => acc + d.remaining_installments, 0) / (debts.length || 1);
   
-  // Calculate simulated interest saved: if paid off in monthsToPayoff instead of standardTime
   const timeDifference = Math.max(0, standardTime - monthsToPayoff);
   const interestSaved = totalRemainingDebts * (estimatedInterestRate / 100) * (timeDifference / 12);
 
@@ -120,137 +132,131 @@ export default function DebtsPage() {
     <div className="space-y-6">
       
       {/* Header with quick stats */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-extrabold tracking-tight">Controle de Dívidas 💸</h1>
-          <p className="text-sm text-muted-foreground">Gerencie seus parcelamentos a longo prazo e trace um plano inteligente de quitação.</p>
+      <div className="bg-card border border-border p-5 rounded-3xl shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex gap-6">
+          <div className="space-y-0.5">
+            <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block">Total Devedor</span>
+            <span className="text-xl font-extrabold text-accent">{displayBRL(totalCurrent)}</span>
+          </div>
+          <div className="border-r border-border" />
+          <div className="space-y-0.5">
+            <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block">Total já Pago</span>
+            <span className="text-xl font-extrabold text-foreground">{displayBRL(totalPaid)}</span>
+          </div>
         </div>
+
         <button 
           onClick={handleOpenModal}
-          className="px-4 py-2.5 bg-accent hover:bg-accent/90 text-white rounded-xl text-sm font-bold flex items-center gap-2 shadow-md transition-all hover:scale-105 active:scale-95"
+          className="px-4 py-2 bg-accent hover:bg-accent/90 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all hover:scale-103 cursor-pointer"
         >
           <Plus className="w-4 h-4" /> Nova Dívida
         </button>
       </div>
 
-      {/* Debt Progress Card */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 bg-card border border-border p-6 rounded-2xl space-y-4 shadow-sm">
-          <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Progresso Geral de Quitação</h3>
-          <div className="flex justify-between items-end">
-            <div>
-              <span className="text-3xl font-extrabold text-accent">{formatBRL(totalCurrent)}</span>
-              <span className="text-xs text-muted-foreground block mt-1">Valor restante para quitar</span>
-            </div>
-            <div className="text-right">
-              <span className="text-sm font-bold text-foreground">{formatBRL(totalPaid)} pagos</span>
-              <span className="text-xs text-muted-foreground block mt-1">de {formatBRL(totalOriginal)} originais</span>
-            </div>
-          </div>
-          <div className="w-full bg-muted rounded-full h-3">
-            <div 
-              className="bg-accent h-3 rounded-full transition-all duration-500" 
-              style={{ width: `${generalProgress}%` }}
-            />
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Você já quitou <strong className="text-accent">{generalProgress.toFixed(1)}%</strong> do valor de todas as suas dívidas cadastradas!
-          </p>
+      {/* Progress & Insight Bar */}
+      <div className="bg-card border border-border p-5 rounded-3xl shadow-sm space-y-3.5">
+        <div className="flex justify-between items-center text-xs font-bold text-muted-foreground">
+          <span>PROCESSO GERAL DE QUITAÇÃO</span>
+          <span className="text-accent">{generalProgress.toFixed(0)}% Concluído</span>
+        </div>
+        
+        <div className="w-full bg-muted rounded-full h-2">
+          <div 
+            className="bg-accent h-2 rounded-full transition-all duration-500" 
+            style={{ width: `${generalProgress}%` }}
+          />
         </div>
 
-        {/* Action status */}
-        <div className="bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20 p-6 rounded-2xl flex flex-col justify-between shadow-sm">
-          <div className="space-y-2">
-            <h4 className="font-bold text-sm text-accent flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 animate-heartbeat text-accent" />
-              Insight da Helozinha
-            </h4>
+        {/* Compact Helozinha Insight Banner */}
+        <div className="flex items-center gap-3 bg-muted/20 p-3 rounded-2xl select-none">
+          <span className="text-xl animate-float">🌸</span>
+          <div className="space-y-0.5">
+            <span className="text-[9px] font-extrabold text-accent uppercase tracking-wider block">Análise da Helozinha</span>
             <p className="text-xs text-muted-foreground leading-relaxed">
               {debts.length === 0 
-                ? "Parabéns, Helo! Você não tem dívidas cadastradas. Que tal focar 100% nas suas metas de investimento?"
-                : `Se você direcionar R$ ${monthlyAllotment} mensais para suas dívidas, estará livre de todas em cerca de ${monthsToPayoff} meses, economizando juros!`
+                ? "Parabéns, Helo! Nenhuma dívida ativa cadastrada. Foco total em caixinhas e investimentos!"
+                : `Se poupar R$ ${monthlyAllotment} mensais para quitação acelerada, estará livre de todas em cerca de ${monthsToPayoff} meses.`
               }
             </p>
-          </div>
-          <div className="pt-4 border-t border-border/40 text-xs text-muted-foreground">
-            Saldo em conta: <span className="font-semibold text-foreground">{formatBRL(dinheiroEmConta)}</span>
           </div>
         </div>
       </div>
 
-      {/* Debts List */}
+      {/* Active Debts Grid */}
       <div className="space-y-4">
         <h3 className="font-extrabold text-base tracking-tight flex items-center gap-2">
           📋 Suas Dívidas Ativas ({debts.length})
         </h3>
         
         {debts.length === 0 ? (
-          <div className="bg-card border border-border p-12 text-center rounded-2xl">
-            <CheckCircle className="w-12 h-12 text-primary mx-auto mb-3" />
-            <p className="text-sm font-semibold">Tudo limpo! Nenhuma dívida ativa no momento. 🎉</p>
-            <p className="text-xs text-muted-foreground mt-1">Clique em "Nova Dívida" se precisar registrar um parcelamento ou empréstimo.</p>
+          <div className="bg-card border border-border p-12 text-center rounded-3xl shadow-sm text-muted-foreground">
+            <CheckCircle className="w-10 h-10 text-primary mx-auto mb-2" />
+            <p className="text-sm font-semibold">Tudo quitado! Nenhuma dívida ativa no momento. 🎉</p>
+            <p className="text-xs mt-1">Clique em "Nova Dívida" se precisar parcelar compras de longo prazo.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {debts.map((debt) => {
               const paidAmount = debt.original_value - debt.current_value;
               const progressPercent = (paidAmount / debt.original_value) * 100;
               const installmentValue = debt.current_value / debt.remaining_installments;
 
               return (
-                <div key={debt.id} className="bg-card border border-border p-5 rounded-2xl shadow-sm space-y-4 relative hover:border-primary/50 transition-colors">
+                <div key={debt.id} className="bg-card border border-border p-5 rounded-3xl shadow-sm space-y-4 relative hover:border-primary/40 transition-colors group">
                   <div className="flex justify-between items-start">
-                    <div>
-                      <span className="text-[10px] uppercase font-bold text-accent bg-primary/20 px-2 py-0.5 rounded-md">
+                    <div className="space-y-1">
+                      <span className="text-[9px] uppercase font-bold text-accent bg-primary/20 px-2 py-0.5 rounded-md">
                         {debt.creditor}
                       </span>
-                      <h4 className="font-extrabold text-base mt-1.5">{debt.name}</h4>
+                      <h4 className="font-extrabold text-sm text-foreground block">{debt.name}</h4>
                     </div>
                     <button 
                       onClick={() => deleteDebt(debt.id)}
-                      className="p-1 text-muted-foreground hover:text-red-500 rounded-lg hover:bg-muted transition-colors"
+                      className="opacity-0 group-hover:opacity-100 p-1.5 text-muted-foreground hover:text-red-500 rounded-lg hover:bg-muted transition-all cursor-pointer"
                       title="Excluir dívida"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2 py-1 text-center bg-muted/20 border border-border rounded-xl">
+                  {/* Clean stats row */}
+                  <div className="grid grid-cols-3 gap-2.5 py-2 px-3 bg-muted/20 border border-border/60 rounded-2xl text-center text-xs select-none">
                     <div>
-                      <span className="text-[9px] text-muted-foreground block font-semibold">Saldo Devedor</span>
-                      <span className="text-xs font-bold text-foreground">{formatBRL(debt.current_value)}</span>
+                      <span className="text-[9px] text-muted-foreground block font-bold">Saldo Devedor</span>
+                      <span className="font-extrabold text-foreground">{displayBRL(debt.current_value)}</span>
                     </div>
                     <div>
-                      <span className="text-[9px] text-muted-foreground block font-semibold">Juros Mensal</span>
-                      <span className="text-xs font-bold text-foreground">{debt.interest_rate}%</span>
+                      <span className="text-[9px] text-muted-foreground block font-bold">Taxa Juros</span>
+                      <span className="font-extrabold text-foreground">{debt.interest_rate}% a.m.</span>
                     </div>
                     <div>
-                      <span className="text-[9px] text-muted-foreground block font-semibold">Próx. Parcela</span>
-                      <span className="text-xs font-bold text-accent">{formatBRL(installmentValue)}</span>
+                      <span className="text-[9px] text-muted-foreground block font-bold">Próx. Parcela</span>
+                      <span className="font-extrabold text-accent">{displayBRL(installmentValue)}</span>
                     </div>
                   </div>
 
-                  {/* Progress bar */}
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-[10px] text-muted-foreground">
+                  {/* Compact Progress */}
+                  <div className="space-y-1 select-none">
+                    <div className="flex justify-between text-[9px] text-muted-foreground font-bold">
                       <span>{debt.remaining_installments} de {debt.total_installments} parcelas restantes</span>
-                      <span className="font-bold">{progressPercent.toFixed(0)}% pago</span>
+                      <span>{progressPercent.toFixed(0)}% pago</span>
                     </div>
-                    <div className="w-full bg-muted rounded-full h-1.5">
+                    <div className="w-full bg-muted rounded-full h-1">
                       <div 
-                        className="bg-primary h-1.5 rounded-full transition-all" 
+                        className="bg-primary h-1 rounded-full transition-all" 
                         style={{ width: `${progressPercent}%` }}
                       />
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-border/40 text-xs">
+                  {/* Actions Bar */}
+                  <div className="flex items-center justify-between pt-3 border-t border-border/60 text-xs">
                     <span className="text-muted-foreground flex items-center gap-1">
                       <Calendar className="w-3.5 h-3.5" /> Vence em: {debt.due_date}
                     </span>
                     <button
                       onClick={() => handlePayInstallment(debt.id)}
-                      className="px-3.5 py-1.5 bg-primary text-primary-foreground font-bold rounded-lg hover:bg-primary-hover shadow-sm transition-colors text-xs"
+                      className="px-3.5 py-1.5 bg-primary hover:bg-primary-hover text-primary-foreground font-bold rounded-xl shadow-sm transition-colors text-xs cursor-pointer"
                     >
                       Pagar Parcela
                     </button>
@@ -262,141 +268,151 @@ export default function DebtsPage() {
         )}
       </div>
 
-      {/* Planejamento de Quitação Inteligente (Simulator) */}
-      <div className="bg-card border border-border p-6 rounded-2xl space-y-6 shadow-sm">
-        <div className="space-y-1">
-          <h3 className="font-extrabold text-base tracking-tight flex items-center gap-2">
-            🧠 Simulador de Quitação Inteligente (Snowball vs Avalanche)
-          </h3>
-          <p className="text-xs text-muted-foreground">
-            Ajuste quanto você pode economizar por mês exclusivamente para liquidar dívidas e veja as estimativas de tempo e economia.
-          </p>
-        </div>
+      {/* Collapsible payoff simulator */}
+      {debts.length > 0 && (
+        <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-sm">
+          {/* Header Toggle */}
+          <button
+            onClick={() => setShowSimulator(!showSimulator)}
+            className="w-full p-5 flex items-center justify-between bg-muted/20 border-b border-border/50 hover:bg-muted/30 transition-all font-extrabold text-sm text-foreground select-none cursor-pointer"
+          >
+            <span className="flex items-center gap-1.5">
+              🧠 Simulador de Quitação Inteligente (Avalanche vs Bola de Neve)
+            </span>
+            {showSimulator ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </button>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="space-y-4">
-            {/* Slider */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-muted-foreground uppercase flex justify-between">
-                <span>Valor Destinado p/ Mês</span>
-                <span className="text-accent font-semibold">{formatBRL(monthlyAllotment)}</span>
-              </label>
-              <input 
-                type="range" 
-                min="100" 
-                max="5000" 
-                step="50"
-                value={monthlyAllotment} 
-                onChange={(e) => setMonthlyAllotment(parseInt(e.target.value))}
-                className="w-full accent-accent bg-muted h-2 rounded-lg cursor-pointer"
-              />
-            </div>
+          {showSimulator && (
+            <div className="p-6 space-y-6 text-xs animate-in fade-in slide-in-from-top-3 duration-200">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                {/* Inputs */}
+                <div className="space-y-4">
+                  <div className="space-y-2 select-none">
+                    <label className="font-bold text-muted-foreground uppercase text-[9px] tracking-wider flex justify-between">
+                      <span>Aporte Mensal Extra</span>
+                      <span className="text-accent font-semibold">{formatBRL(monthlyAllotment)}</span>
+                    </label>
+                    <input 
+                      type="range" 
+                      min="100" 
+                      max="5000" 
+                      step="50"
+                      value={monthlyAllotment} 
+                      onChange={(e) => setMonthlyAllotment(parseInt(e.target.value))}
+                      className="w-full accent-accent bg-muted h-1.5 rounded-lg cursor-pointer"
+                    />
+                  </div>
 
-            {/* Method Select */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-muted-foreground uppercase">Método Preferencial</label>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => setPlanningMethod('avalanche')}
-                  className={`p-2.5 rounded-xl border text-xs font-semibold transition-all ${
-                    planningMethod === 'avalanche' 
-                      ? 'border-accent bg-accent/5 text-accent' 
-                      : 'border-border bg-transparent text-muted-foreground hover:bg-muted'
-                  }`}
-                >
-                  🏔️ Avalanche
-                </button>
-                <button
-                  onClick={() => setPlanningMethod('snowball')}
-                  className={`p-2.5 rounded-xl border text-xs font-semibold transition-all ${
-                    planningMethod === 'snowball' 
-                      ? 'border-accent bg-accent/5 text-accent' 
-                      : 'border-border bg-transparent text-muted-foreground hover:bg-muted'
-                  }`}
-                >
-                  ❄️ Bola de Neve
-                </button>
+                  <div className="space-y-2 select-none">
+                    <label className="font-bold text-muted-foreground uppercase text-[9px] tracking-wider block">Método de Quitação</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => setPlanningMethod('avalanche')}
+                        className={`p-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                          planningMethod === 'avalanche' 
+                            ? 'border-accent bg-accent/5 text-accent' 
+                            : 'border-border bg-transparent text-muted-foreground hover:bg-muted'
+                        }`}
+                      >
+                        🏔️ Avalanche
+                      </button>
+                      <button
+                        onClick={() => setPlanningMethod('snowball')}
+                        className={`p-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                          planningMethod === 'snowball' 
+                            ? 'border-accent bg-accent/5 text-accent' 
+                            : 'border-border bg-transparent text-muted-foreground hover:bg-muted'
+                        }`}
+                      >
+                        ❄️ Bola de Neve
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Projections Display */}
+                <div className="md:col-span-2 p-5 bg-muted/20 border border-border/80 rounded-2xl grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Tempo Estimado p/ Quitação</span>
+                    <span className="text-xl font-black text-foreground block">
+                      {debts.length === 0 ? '0' : `${monthsToPayoff} meses`}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground block">
+                      {monthsToPayoff > 0 
+                        ? `Previsão: ${new Date(new Date().setMonth(new Date().getMonth() + monthsToPayoff)).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}`
+                        : 'Sem parcelamentos pendentes.'
+                      }
+                    </span>
+                  </div>
+
+                  <div className="space-y-1">
+                    <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Economia de Juros Estimada</span>
+                    <span className="text-xl font-black text-green-600 dark:text-green-400 block">
+                      {debts.length === 0 || interestSaved <= 0 ? 'R$ 0,00' : formatBRL(interestSaved)}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground block">
+                      Em comparação ao pagamento mínimo das parcelas.
+                    </span>
+                  </div>
+
+                  <div className="sm:col-span-2 pt-3 border-t border-border/50 text-[11px] text-muted-foreground">
+                    {planningMethod === 'avalanche' ? (
+                      <span>
+                        <strong>🏔️ Método Avalanche:</strong> Foca em liquidar primeiro a dívida de <strong>juros mais altos</strong> (ex: {debts.sort((a,b) => b.interest_rate - a.interest_rate)[0]?.name || 'Empréstimos'}). Este é o método matematicamente mais vantajoso, pois reduz o pagamento total de juros.
+                      </span>
+                    ) : (
+                      <span>
+                        <strong>❄️ Método Bola de Neve:</strong> Foca em liquidar primeiro a dívida de <strong>menor valor absoluto</strong> (ex: {debts.sort((a,b) => a.current_value - b.current_value)[0]?.name || 'Fatura'}). Este método visa a motivação psicológica rápida, eliminando contas uma a uma de forma veloz.
+                      </span>
+                    )}
+                  </div>
+                </div>
+
               </div>
             </div>
-          </div>
-
-          {/* Results column */}
-          <div className="md:col-span-2 p-5 bg-muted/20 border border-border rounded-xl grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <span className="text-[10px] text-muted-foreground uppercase font-semibold">Meses para Quitação</span>
-              <span className="text-2xl font-extrabold text-foreground block">
-                {debts.length === 0 ? '0' : `${monthsToPayoff} meses`}
-              </span>
-              <span className="text-[10px] text-muted-foreground block">
-                {monthsToPayoff > 0 
-                  ? `Previsão: ${new Date(new Date().setMonth(new Date().getMonth() + monthsToPayoff)).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}`
-                  : 'Nenhuma dívida pendente.'
-                }
-              </span>
-            </div>
-
-            <div className="space-y-1">
-              <span className="text-[10px] text-muted-foreground uppercase font-semibold">Economia Estimada de Juros</span>
-              <span className="text-2xl font-extrabold text-green-600 dark:text-green-400 block">
-                {debts.length === 0 || interestSaved <= 0 ? 'R$ 0,00' : formatBRL(interestSaved)}
-              </span>
-              <span className="text-[10px] text-muted-foreground block">
-                Comparado ao pagamento padrão.
-              </span>
-            </div>
-
-            <div className="col-span-2 pt-3 border-t border-border text-xs text-muted-foreground">
-              {planningMethod === 'avalanche' ? (
-                <span>
-                  <strong>🏔️ Método Avalanche:</strong> Quita primeiro as dívidas de <strong>juros mais altos</strong> (ex: {debts.sort((a,b) => b.interest_rate - a.interest_rate)[0]?.name || 'Empréstimo'}). Matematicamente mais eficiente, economizando mais juros.
-                </span>
-              ) : (
-                <span>
-                  <strong>❄️ Método Bola de Neve:</strong> Quita primeiro as dívidas de <strong>menor valor</strong> (ex: {debts.sort((a,b) => a.current_value - b.current_value)[0]?.name || 'Notebook'}). Excelente para motivação psicológica ao eliminar credores rapidamente.
-                </span>
-              )}
-            </div>
-          </div>
+          )}
         </div>
-      </div>
+      )}
 
       {/* Add Debt Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-card border border-border w-full max-w-lg rounded-2xl shadow-xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-5 border-b border-border flex justify-between items-center bg-muted/20">
-              <h3 className="font-bold text-base flex items-center gap-2">
-                💸 Cadastrar Nova Dívida
+        <div className="fixed inset-0 bg-black/45 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-card border border-border w-full max-w-lg rounded-3xl shadow-xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-5 border-b border-border flex justify-between items-center bg-muted/20 select-none">
+              <h3 className="font-extrabold text-sm flex items-center gap-1.5 text-accent">
+                💸 Cadastrar Nova Dívida / Financiamento
               </h3>
               <button 
                 onClick={handleCloseModal}
-                className="p-1 rounded-lg hover:bg-muted text-muted-foreground"
+                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             
-            <form onSubmit={handleSubmit} className="p-5 space-y-4">
+            <form onSubmit={handleSubmit} className="p-5 space-y-4 text-xs">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold">Nome da Dívida *</label>
+                  <label className="font-bold text-muted-foreground">Nome da Dívida *</label>
                   <input 
                     type="text" 
-                    placeholder="Ex: Empréstimo Nubank"
+                    placeholder="Ex: Financiamento Carro"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:border-accent"
+                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground"
                     required
+                    autoFocus
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold">Creditor (Instituição) *</label>
+                  <label className="font-bold text-muted-foreground">Instituição Credora *</label>
                   <input 
                     type="text" 
-                    placeholder="Ex: Nubank"
+                    placeholder="Ex: Santander"
                     value={creditor}
                     onChange={(e) => setCreditor(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:border-accent"
+                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground"
                     required
                   />
                 </div>
@@ -404,88 +420,89 @@ export default function DebtsPage() {
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold">Valor Inicial (R$) *</label>
+                  <label className="font-bold text-muted-foreground">Valor Inicial (R$) *</label>
                   <input 
                     type="number" 
-                    placeholder="15000"
+                    placeholder="Ex: 15000"
                     value={originalValue}
                     onChange={(e) => setOriginalValue(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:border-accent"
+                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground"
                     required
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold">Valor Restante (R$) *</label>
+                  <label className="font-bold text-muted-foreground">Valor Restante (R$) *</label>
                   <input 
                     type="number" 
-                    placeholder="8500"
+                    placeholder="Ex: 8500"
                     value={currentValue}
                     onChange={(e) => setCurrentValue(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:border-accent"
+                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent font-bold text-foreground"
                     required
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold">Taxa de Juros (% a.m.)</label>
+                  <label className="font-bold text-muted-foreground">Juros (% a.m.)</label>
                   <input 
                     type="number" 
                     step="0.01" 
-                    placeholder="1.99"
+                    placeholder="Ex: 1.99"
                     value={interestRate}
                     onChange={(e) => setInterestRate(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:border-accent"
+                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold">Parcelas Totais *</label>
+                  <label className="font-bold text-muted-foreground">Parcelas Totais *</label>
                   <input 
                     type="number" 
-                    placeholder="24"
+                    placeholder="Ex: 24"
                     value={totalInstallments}
                     onChange={(e) => setTotalInstallments(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:border-accent"
+                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground"
                     required
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold">Restantes *</label>
+                  <label className="font-bold text-muted-foreground">Restantes *</label>
                   <input 
                     type="number" 
-                    placeholder="14"
+                    placeholder="Ex: 14"
                     value={remainingInstallments}
                     onChange={(e) => setRemainingInstallments(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:border-accent"
+                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground"
                     required
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold">Próximo Vencimento *</label>
+                  <label className="font-bold text-muted-foreground">Próx. Vencimento *</label>
                   <input 
                     type="date"
                     value={dueDate}
                     onChange={(e) => setDueDate(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:border-accent"
+                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground"
                     required
                   />
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-border flex justify-end gap-3">
+              {/* Modal Actions */}
+              <div className="pt-4 border-t border-border flex justify-end gap-2.5 select-none">
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="px-4 py-2 border border-border hover:bg-muted rounded-xl text-sm font-semibold"
+                  className="px-4 py-2 border border-border hover:bg-muted rounded-xl font-bold cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-accent hover:bg-accent/90 text-white rounded-xl text-sm font-bold shadow"
+                  className="px-5 py-2 bg-accent hover:bg-accent/90 text-white rounded-xl font-bold shadow-sm transition-all cursor-pointer"
                 >
-                  Salvar Dívida
+                  Salvar
                 </button>
               </div>
             </form>

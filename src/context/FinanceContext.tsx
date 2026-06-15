@@ -36,6 +36,8 @@ interface FinanceContextType extends FinanceState {
   updateProfile: (p: Profile) => void;
   exportState: () => string;
   importState: (stateStr: string) => boolean;
+  showValues: boolean;
+  toggleShowValues: () => void;
   
   // Computed Metrics
   dinheiroEmConta: number;
@@ -72,9 +74,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [bankConnections, setBankConnections] = useState<BankConnection[]>(initialBankConnections);
   const [notifications, setNotifications] = useState<AppNotification[]>(initialNotifications);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [showValues, setShowValues] = useState<boolean>(true);
   
-
-
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Load from localStorage with version check
@@ -109,6 +110,10 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         } catch (e) {
           console.error('Error parsing localStorage state:', e);
         }
+      }
+      const showValStored = localStorage.getItem('helo_finance_show_values');
+      if (showValStored !== null) {
+        setShowValues(showValStored === 'true');
       }
       setIsLoaded(true);
     }
@@ -147,7 +152,13 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const updateProfile = (p: Profile) => setProfile(p);
   
-
+  const toggleShowValues = () => {
+    setShowValues(prev => {
+      const next = !prev;
+      localStorage.setItem('helo_finance_show_values', String(next));
+      return next;
+    });
+  };
 
   // Financial calculations
   const dinheiroEmConta = transactions
@@ -589,6 +600,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       clearNotifications,
       exportState,
       importState,
+      showValues,
+      toggleShowValues,
       
       // Computed Metrics
       dinheiroEmConta,
