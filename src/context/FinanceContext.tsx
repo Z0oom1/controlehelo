@@ -18,12 +18,14 @@ interface FinanceContextType extends FinanceState {
   updateTransaction: (t: Transaction) => void;
   addDebt: (d: Omit<Debt, 'id'>) => void;
   deleteDebt: (id: string) => void;
+  updateDebt: (d: Debt) => void;
   payDebtInstallment: (id: string) => void;
   addGoal: (g: Omit<Goal, 'id'>) => void;
   deleteGoal: (id: string) => void;
   updateGoalProgress: (id: string, amount: number) => void;
   addCaixinha: (c: Omit<Caixinha, 'id'>) => void;
   deleteCaixinha: (id: string) => void;
+  updateCaixinha: (c: Caixinha) => void;
   depositToCaixinha: (id: string, amount: number) => boolean;
   withdrawFromCaixinha: (id: string, amount: number) => boolean;
   transferBetweenCaixinhas: (fromId: string, toId: string, amount: number) => boolean;
@@ -192,7 +194,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     // Add notification if spending is high
     if (newTransaction.type === 'expense' && newTransaction.amount > 500) {
       addSystemNotification(
-        'Alerta de Gasto Alto ⚠️',
+        'Alerta de Gasto Alto',
         `Você registrou uma despesa de R$ ${newTransaction.amount.toFixed(2)} em ${newTransaction.category}.`,
         'warning'
       );
@@ -215,7 +217,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     };
     setDebts(prev => [...prev, newDebt]);
     addSystemNotification(
-      'Nova Dívida Registrada 💸',
+      'Nova Dívida Registrada',
       `A dívida "${d.name}" com ${d.creditor} foi cadastrada com sucesso.`,
       'info'
     );
@@ -223,6 +225,10 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const deleteDebt = (id: string) => {
     setDebts(prev => prev.filter(d => d.id !== id));
+  };
+
+  const updateDebt = (updated: Debt) => {
+    setDebts(prev => prev.map(d => d.id === updated.id ? updated : d));
   };
 
   const payDebtInstallment = (id: string) => {
@@ -248,13 +254,13 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
           // System Notification
           if (nextRemaining === 0) {
             addSystemNotification(
-              'Dívida Quitada! 🎉❤️',
+              'Dívida Quitada!',
               `Parabéns! Você quitou totalmente a dívida "${d.name}". Que alívio financeiro!`,
               'success'
             );
           } else {
             addSystemNotification(
-              'Parcela de Dívida Paga 🌸',
+              'Parcela de Dívida Paga',
               `Você pagou R$ ${installmentValue.toFixed(2)} da dívida "${d.name}". Restam ${nextRemaining} parcelas.`,
               'success'
             );
@@ -280,7 +286,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     };
     setGoals(prev => [...prev, newGoal]);
     addSystemNotification(
-      'Nova Meta Financeira! 🎯',
+      'Nova Meta Financeira!',
       `Meta "${g.name}" de R$ ${g.target_value.toFixed(2)} criada com sucesso.`,
       'success'
     );
@@ -296,7 +302,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         const nextVal = Math.min(g.target_value, Math.max(0, g.current_value + amount));
         if (nextVal >= g.target_value && g.current_value < g.target_value) {
           addSystemNotification(
-            'Meta Atingida! 🎉🏆❤️',
+            'Meta Atingida!',
             `Parabéns Helo! Você alcançou 100% da sua meta: "${g.name}"!`,
             'success'
           );
@@ -318,6 +324,10 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const deleteCaixinha = (id: string) => {
     setCaixinhas(prev => prev.filter(c => c.id !== id));
+  };
+
+  const updateCaixinha = (updated: Caixinha) => {
+    setCaixinhas(prev => prev.map(c => c.id === updated.id ? updated : c));
   };
 
   const depositToCaixinha = (id: string, amount: number): boolean => {
@@ -350,7 +360,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }));
 
     addSystemNotification(
-      'Valor Guardado! 🌸💰',
+      'Valor Guardado!',
       `R$ ${amount.toFixed(2)} guardados com sucesso na caixinha!`,
       'success'
     );
@@ -380,7 +390,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }));
 
     addSystemNotification(
-      'Resgate Concluído 💸',
+      'Resgate Concluído',
       `R$ ${amount.toFixed(2)} resgatados da caixinha "${box.name}" para sua conta.`,
       'info'
     );
@@ -400,7 +410,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }));
 
     addSystemNotification(
-      'Transferência Realizada ❤️',
+      'Transferência Realizada',
       `R$ ${amount.toFixed(2)} transferidos de "${sourceBox.name}" para "${destBox.name}".`,
       'success'
     );
@@ -414,7 +424,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         : c
     ));
     addSystemNotification(
-      'Conta Atualizada 🏦',
+      'Conta Atualizada',
       `Os valores da sua conta foram atualizados manualmente.`,
       'success'
     );
@@ -425,7 +435,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setBankConnections(prev => prev.filter(b => b.id !== id));
     if (conn) {
       addSystemNotification(
-        'Conexão Removida 🏦',
+        'Conexão Removida',
         `A integração com o ${conn.bank_name} foi desconectada.`,
         'info'
       );
@@ -493,7 +503,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     });
 
     addSystemNotification(
-      'Extrato Importado com Sucesso 🌸📄',
+      'Extrato Importado com Sucesso',
       `Sua conta do ${bankName} foi atualizada. Importadas ${mappedTransactions.length} transações. Saldo atualizado para R$ ${balance.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}.`,
       'success'
     );
@@ -555,7 +565,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
           }
         }
         addSystemNotification(
-          'Backup Restaurado! 🎉🌸',
+          'Backup Restaurado!',
           'Seus dados financeiros foram importados com sucesso.',
           'success'
         );
@@ -584,12 +594,14 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       updateTransaction,
       addDebt,
       deleteDebt,
+      updateDebt,
       payDebtInstallment,
       addGoal,
       deleteGoal,
       updateGoalProgress,
       addCaixinha,
       deleteCaixinha,
+      updateCaixinha,
       depositToCaixinha,
       withdrawFromCaixinha,
       transferBetweenCaixinhas,

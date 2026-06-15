@@ -4,8 +4,8 @@ import AppShell from "@/components/AppShell";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Controle Financeiro da Helo ❤️",
-  description: "Gestão financeira pessoal fofa, elegante, com metas, caixinhas e Open Finance integrado.",
+  title: "Helo Finanças",
+  description: "Plataforma minimalista e profissional para controle financeiro pessoal.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

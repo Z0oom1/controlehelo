@@ -32,7 +32,7 @@ export default function HelozinhaPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     { 
       sender: 'helozinha', 
-      text: 'Oi Helo! ❤️ Sou a Helozinha, sua assistente de inteligência financeira pessoal. Como posso te ajudar a organizar seu dinheiro hoje?', 
+      text: 'Olá! Sou o Assistente Virtual do Helo Finanças. Como posso ajudar com sua organização financeira hoje?', 
       timestamp: '14:20' 
     }
   ]);
@@ -53,10 +53,10 @@ export default function HelozinhaPage() {
   }, [messages, isTyping]);
 
   const quickPrompts = [
-    'Qual o meu saldo líquido real? 💰',
-    'Como estão minhas dívidas? 💸',
-    'Dê conselhos para esta semana 🌸',
-    'Como estão minhas metas? 🎯'
+    'Qual o meu saldo líquido real?',
+    'Como estão minhas dívidas?',
+    'Recomendações para esta semana',
+    'Como estão minhas metas?'
   ];
 
   // Helper logic to build context-aware replies
@@ -110,11 +110,11 @@ export default function HelozinhaPage() {
         advice += `Aproveite para reabastecer sua caixinha Reserva de Emergência!`;
       }
 
-      return `Oi Helo! 🌸 Aqui vai meu conselho financeiro especial para você esta semana:\n\n1. **Orçamento Semanal:** ${advice}\n2. **Metas:** Seu planejamento de patrimônio futuro está seguro, mas manter a consistência nas caixinhas é fundamental!`;
+      return `Olá! Recomendações financeiras para você esta semana:\n\n1. **Orçamento Semanal:** ${advice}\n2. **Metas:** Seu planejamento de patrimônio futuro está seguro, mas manter a consistência nas caixinhas é fundamental!`;
     }
 
     // Default Reply
-    return `Não entendi muito bem, Helo. ❤️ Quer que eu te passe o **saldo líquido**, mostre a projeção de **dívidas**, explique as **metas** ou te dê um **conselho semanal** de economia?`;
+    return `Não entendi muito bem. Gostaria de ver o seu **saldo líquido**, a projeção de **dívidas**, explicar as **metas** ou receber um **conselho semanal** de economia?`;
   };
 
   const handleSendMessage = (text: string) => {
@@ -148,8 +148,8 @@ export default function HelozinhaPage() {
       
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-extrabold tracking-tight">Helozinha ❤️</h1>
-        <p className="text-sm text-muted-foreground">Tire dúvidas sobre suas contas e receba insights automatizados para organizar seu dinheiro.</p>
+        <h1 className="text-2xl font-extrabold tracking-tight">Assistente Virtual</h1>
+        <p className="text-sm text-muted-foreground">Tire dúvidas sobre suas contas e receba insights automatizados para organizar seu dinheiro de forma inteligente.</p>
       </div>
 
       {/* Main Container */}
@@ -186,11 +186,11 @@ export default function HelozinhaPage() {
         <div className="lg:col-span-3 bg-card border border-border rounded-3xl h-[480px] md:h-[550px] flex flex-col justify-between overflow-hidden shadow-sm">
           {/* Header */}
           <div className="p-4 border-b border-border flex items-center gap-3 bg-muted/20">
-            <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white text-xl shadow select-none animate-float">
-              🤖
+            <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white text-xl shadow select-none">
+              <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-sm text-foreground">Helozinha ❤️</h3>
+              <h3 className="font-bold text-sm text-foreground">Assistente Virtual</h3>
               <span className="text-[10px] text-green-500 font-bold flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> Online
               </span>
@@ -266,7 +266,7 @@ export default function HelozinhaPage() {
           <div className="p-3 border-t border-border flex gap-2 bg-card">
             <input 
               type="text" 
-              placeholder="Pergunte à Helozinha..."
+              placeholder="Pergunte ao Assistente..."
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSendMessage(inputText)}

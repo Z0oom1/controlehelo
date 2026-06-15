@@ -4,26 +4,26 @@
 :root {
   --font-outfit: 'Outfit', sans-serif;
   --font-inter: 'Inter', sans-serif;
-  --background: #FFF5F6;
-  --foreground: #3A2024;
-  --card: #FFFFFF;
-  --card-foreground: #3A2024;
-  --primary: #FFB7C5;
-  --primary-hover: #FFA2B6;
-  --primary-foreground: #3A2024;
-  --secondary: #E8D7F1;
-  --secondary-foreground: #3A2024;
-  --muted: #FFE6EA;
-  --muted-foreground: #8C6A70;
-  --accent: #FF4D6D;
-  --accent-foreground: #FFFFFF;
-  --border: #FFD6DC;
-  --ring: #FFB7C5;
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --primary: #e2e8f0;
+  --primary-hover: #cbd5e1;
+  --primary-foreground: #0f172a;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #4f46e5;
+  --accent-foreground: #ffffff;
+  --border: #e2e8f0;
+  --ring: #6366f1;
 
-  --success: #4EAD80;
-  --warning: #F5B041;
-  --danger: #FF4D6D;
-  --info: #A2D2FF;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #3b82f6;
 
   --radius-xl: 1.25rem;
   --radius-lg: 1rem;
@@ -32,26 +32,26 @@
 }
 
 .dark {
-  --background: #140C0F;
-  --foreground: #FFE6EA;
-  --card: #1D1216;
-  --card-foreground: #FFE6EA;
-  --primary: #FFA5B8;
-  --primary-hover: #FFCCD5;
-  --primary-foreground: #140C0F;
-  --secondary: #422934;
-  --secondary-foreground: #FFE6EA;
-  --muted: #2A1A20;
-  --muted-foreground: #A68087;
-  --accent: #FF5D7B;
-  --accent-foreground: #FFFFFF;
-  --border: #3A222C;
-  --ring: #FFA5B8;
+  --background: #0b0f19;
+  --foreground: #f8fafc;
+  --card: #151b2c;
+  --card-foreground: #f8fafc;
+  --primary: #1e293b;
+  --primary-hover: #334155;
+  --primary-foreground: #f8fafc;
+  --secondary: #1e293b;
+  --secondary-foreground: #f8fafc;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #6366f1;
+  --accent-foreground: #ffffff;
+  --border: #1e293b;
+  --ring: #6366f1;
 
-  --success: #7BE0AD;
-  --warning: #FFE066;
-  --danger: #FF5D7B;
-  --info: #B8D8D8;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --info: #60a5fa;
 }
 
 @theme {

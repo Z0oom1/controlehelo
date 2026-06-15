@@ -104,7 +104,7 @@ export default function CalendarPage() {
       const currentSalaryDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(profile.salaryDay).padStart(2, '0')}`;
       events.push({
         id: `s-salary-current-${year}-${month}`,
-        title: `Salário 💰`,
+        title: `Salário`,
         amount: profile.salaryAmount,
         type: 'income',
         date: currentSalaryDateStr,
@@ -118,7 +118,7 @@ export default function CalendarPage() {
       const prevSalaryDateStr = `${prevYear}-${String(prevM + 1).padStart(2, '0')}-${String(profile.salaryDay).padStart(2, '0')}`;
       events.push({
         id: `s-salary-prev-${prevYear}-${prevM}`,
-        title: `Salário 💰`,
+        title: `Salário`,
         amount: profile.salaryAmount,
         type: 'income',
         date: prevSalaryDateStr,
@@ -132,7 +132,7 @@ export default function CalendarPage() {
       const nextSalaryDateStr = `${nextYear}-${String(nextM + 1).padStart(2, '0')}-${String(profile.salaryDay).padStart(2, '0')}`;
       events.push({
         id: `s-salary-next-${nextYear}-${nextM}`,
-        title: `Salário 💰`,
+        title: `Salário`,
         amount: profile.salaryAmount,
         type: 'income',
         date: nextSalaryDateStr,
@@ -312,14 +312,14 @@ export default function CalendarPage() {
       {/* Calendar Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight">Calendário Financeiro 📅</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight">Calendário Financeiro</h1>
           <p className="text-sm text-muted-foreground">Monitore vencimentos, recebimentos e metas. Clique com o botão direito para ações rápidas.</p>
         </div>
         <button 
           onClick={() => setShowSalaryModal(true)}
           className="px-4 py-2.5 bg-primary/20 text-accent hover:bg-primary/30 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm shrink-0"
         >
-          ⚙️ Configurar Salário
+          Configurar Salário
         </button>
       </div>
 
@@ -327,7 +327,7 @@ export default function CalendarPage() {
       {(!profile.salaryDay || !profile.salaryAmount) && (
         <div className="bg-gradient-to-r from-accent/10 to-primary/10 border border-primary/20 p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
           <div className="space-y-1">
-            <h4 className="font-bold text-xs text-accent">Dica: Adicione seu salário no calendário 🌸</h4>
+            <h4 className="font-bold text-xs text-accent">Dica: Adicione seu salário no calendário</h4>
             <p className="text-[11px] text-muted-foreground leading-relaxed">
               Defina o valor e o dia de recebimento do seu salário para que ele fique automaticamente marcado no calendário todos os meses.
             </p>
@@ -654,7 +654,7 @@ export default function CalendarPage() {
             <div className="p-5 max-h-80 overflow-y-auto space-y-3">
               {selectedDayEvents.length === 0 ? (
                 <div className="p-6 text-center text-xs text-muted-foreground">
-                  Nenhum compromisso financeiro para este dia. 🌸
+                  Nenhum compromisso financeiro para este dia.
                 </div>
               ) : (
                 selectedDayEvents.map((event) => {
@@ -715,7 +715,7 @@ export default function CalendarPage() {
           <div className="bg-card border border-border w-full max-w-sm rounded-2xl shadow-xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-4 border-b border-border flex justify-between items-center bg-muted/20">
               <h3 className="font-bold text-sm flex items-center gap-1.5">
-                💰 Configurar Salário Recorrente
+                Configurar Salário Recorrente
               </h3>
               <button 
                 onClick={() => setShowSalaryModal(false)}

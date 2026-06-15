@@ -391,7 +391,7 @@ export default function BankIntegrationPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight">Minhas Contas e Cartões 🏦</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight">Minhas Contas e Cartões</h1>
           <p className="text-sm text-muted-foreground">Cadastre e gerencie suas contas bancárias manualmente ou faça upload offline de extratos.</p>
         </div>
       </div>
@@ -399,13 +399,13 @@ export default function BankIntegrationPage() {
       {/* Active connections list */}
       <div className="space-y-4">
         <h3 className="font-extrabold text-base tracking-tight flex items-center gap-1.5">
-          <span>💼 Suas Contas Cadastradas ({bankConnections.length})</span>
+          <span>Suas Contas Cadastradas ({bankConnections.length})</span>
         </h3>
 
         {bankConnections.length === 0 ? (
           <div className="bg-card border border-border p-8 text-center rounded-3xl">
             <Landmark className="w-10 h-10 text-primary mx-auto mb-3" />
-            <p className="text-sm font-semibold">Nenhuma conta cadastrada ainda. 🌸</p>
+            <p className="text-sm font-semibold">Nenhuma conta cadastrada ainda.</p>
             <p className="text-xs text-muted-foreground mt-1">Utilize o formulário abaixo para adicionar uma conta manualmente ou importar um extrato bancário.</p>
           </div>
         ) : (
@@ -474,7 +474,7 @@ export default function BankIntegrationPage() {
           {/* Add Manual Account Form */}
           <div className="bg-card border border-border p-6 rounded-3xl space-y-4 shadow-sm">
             <h3 className="font-extrabold text-base flex items-center gap-1.5">
-              🌸 Cadastrar Nova Conta Bancária
+              Cadastrar Nova Conta Bancária
             </h3>
             
             <form onSubmit={handleAddManualAccount} className="space-y-4 text-xs">
@@ -564,7 +564,7 @@ export default function BankIntegrationPage() {
           {/* Import Offline File Area */}
           <div className="bg-card border border-border p-6 rounded-3xl space-y-4 shadow-sm">
             <h3 className="font-extrabold text-base flex items-center gap-1.5">
-              📄 Importar Transações de Extrato (Offline)
+              Importar Transações de Extrato (Offline)
             </h3>
             <p className="text-xs text-muted-foreground">Arraste um arquivo de extrato exportado do seu banco para importar transações e atualizar saldos offline.</p>
             

@@ -15,7 +15,8 @@ import {
   X,
   ChevronDown,
   ChevronUp,
-  Sparkles
+  Sparkles,
+  Edit2
 } from 'lucide-react';
 import { Transaction, TransactionType } from '@/types';
 
@@ -32,6 +33,7 @@ export default function TransactionsPage() {
   const [mounted, setMounted] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showProjections, setShowProjections] = useState(false);
+  const [editTransactionId, setEditTransactionId] = useState<string | null>(null);
 
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
@@ -72,6 +74,32 @@ export default function TransactionsPage() {
     }
   };
 
+  const handleStartEdit = (t: Transaction) => {
+    setEditTransactionId(t.id);
+    setDescription(t.description);
+    setAmount(t.amount.toString());
+    setType(t.type);
+    setCategory(t.category);
+    setDate(t.date);
+    setRecurrence(t.recurrence);
+    setObservations(t.observations || '');
+    setIsRealized(t.is_realized);
+    setShowAddForm(true);
+  };
+
+  const handleCloseAddForm = () => {
+    setEditTransactionId(null);
+    setDescription('');
+    setAmount('');
+    setType('expense');
+    setCategory('Alimentação');
+    setDate(new Date().toISOString().split('T')[0]);
+    setRecurrence('none');
+    setObservations('');
+    setIsRealized(true);
+    setShowAddForm(false);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!description || !amount || !date) {
@@ -79,22 +107,32 @@ export default function TransactionsPage() {
       return;
     }
 
-    addTransaction({
-      description,
-      amount: parseFloat(amount),
-      type: type === 'predicted_income' ? 'predicted_income' : type,
-      category,
-      date,
-      recurrence,
-      is_realized: type === 'predicted_income' ? false : isRealized,
-      observations
-    });
+    if (editTransactionId) {
+      updateTransaction({
+        id: editTransactionId,
+        description,
+        amount: parseFloat(amount),
+        type: type === 'predicted_income' ? 'predicted_income' : type,
+        category,
+        date,
+        recurrence,
+        is_realized: type === 'predicted_income' ? false : isRealized,
+        observations
+      });
+    } else {
+      addTransaction({
+        description,
+        amount: parseFloat(amount),
+        type: type === 'predicted_income' ? 'predicted_income' : type,
+        category,
+        date,
+        recurrence,
+        is_realized: type === 'predicted_income' ? false : isRealized,
+        observations
+      });
+    }
 
-    // Reset Form
-    setDescription('');
-    setAmount('');
-    setObservations('');
-    setShowAddForm(false);
+    handleCloseAddForm();
   };
 
   const handleToggleRealized = (t: Transaction) => {
@@ -148,7 +186,7 @@ export default function TransactionsPage() {
         case 'Comissão': return '📈';
         case 'Vendas': return '🏷️';
         case 'Rendimentos': return '🪙';
-        default: return '🌸';
+        default: return '💼';
       }
     } else {
       switch (cat) {
@@ -203,7 +241,7 @@ export default function TransactionsPage() {
       
       {/* Header with Quick Totals */}
       <div className="bg-card border border-border p-5 rounded-3xl shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex gap-6">
+        <div className="flex gap-6 select-none">
           <div className="space-y-0.5">
             <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block">Saldo Real</span>
             <span className="text-xl font-extrabold text-foreground">{displayBRL(saldoAtual)}</span>
@@ -217,7 +255,7 @@ export default function TransactionsPage() {
 
         <button
           onClick={() => setShowProjections(!showProjections)}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border hover:bg-muted text-xs font-bold rounded-xl transition-all text-muted-foreground hover:text-foreground"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border hover:bg-muted text-xs font-bold rounded-xl transition-all text-muted-foreground hover:text-foreground cursor-pointer select-none"
         >
           <span>Projeções de Cenário</span>
           {showProjections ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -226,7 +264,7 @@ export default function TransactionsPage() {
 
       {/* Expandable scenario projections */}
       {showProjections && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-muted/15 border border-border/80 rounded-3xl animate-in fade-in slide-in-from-top-3 duration-200">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-muted/15 border border-border/80 rounded-3xl animate-in fade-in slide-in-from-top-3 duration-200 select-none">
           <div className="bg-card border border-border p-4 rounded-2xl">
             <span className="text-[10px] text-green-600 dark:text-green-400 font-bold uppercase tracking-wider block">Cenário Otimista</span>
             <span className="text-lg font-black text-green-600 dark:text-green-400 block mt-1">{displayBRL(saldoOtimista)}</span>
@@ -315,7 +353,6 @@ export default function TransactionsPage() {
       <div className="space-y-5">
         {sortedDates.length === 0 ? (
           <div className="bg-card border border-border p-12 text-center rounded-3xl shadow-sm text-muted-foreground">
-            <span className="block text-2xl mb-2">🌸</span>
             <p className="text-sm font-semibold">Nenhuma transação encontrada.</p>
             <p className="text-xs mt-1">Tente ajustar seus filtros ou faça um novo lançamento.</p>
           </div>
@@ -323,7 +360,6 @@ export default function TransactionsPage() {
           sortedDates.map((dateStr) => {
             const dayTxs = groupedTransactions[dateStr];
             
-            // Format nice human-readable date in Portuguese
             const dateObj = new Date(dateStr + 'T00:00:00');
             const formattedDate = dateObj.toLocaleDateString('pt-BR', { 
               weekday: 'long', 
@@ -371,7 +407,7 @@ export default function TransactionsPage() {
                               ) : (
                                 <button
                                   onClick={() => handleToggleRealized(t)}
-                                  className="text-[9px] text-amber-600 bg-amber-50 hover:bg-green-50 dark:bg-amber-950/20 hover:text-green-600 font-bold px-1.5 py-0.5 rounded transition-colors"
+                                  className="text-[9px] text-amber-600 bg-amber-50 hover:bg-green-50 dark:bg-amber-950/20 hover:text-green-600 font-bold px-1.5 py-0.5 rounded transition-colors cursor-pointer"
                                   title="Clique para confirmar pagamento/recebimento"
                                 >
                                   Pendente (Confirmar?)
@@ -387,12 +423,20 @@ export default function TransactionsPage() {
                         </div>
 
                         {/* Amount & Actions */}
-                        <div className="flex items-center gap-4 shrink-0">
+                        <div className="flex items-center gap-2.5 shrink-0">
                           <span className={`text-sm font-black tracking-tight ${
                             isExpense ? 'text-red-500' : 'text-green-600 dark:text-green-400'
                           }`}>
                             {isExpense ? '-' : '+'} {displayBRL(t.amount)}
                           </span>
+
+                          <button
+                            onClick={() => handleStartEdit(t)}
+                            className="p-1.5 text-muted-foreground hover:text-accent hover:bg-muted rounded-xl transition-all cursor-pointer"
+                            title="Editar Lançamento"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
 
                           <button
                             onClick={() => deleteTransaction(t.id)}
@@ -420,10 +464,10 @@ export default function TransactionsPage() {
             {/* Modal Header */}
             <div className="p-5 border-b border-border flex justify-between items-center bg-muted/20 select-none">
               <h3 className="font-extrabold text-sm flex items-center gap-1.5 text-accent">
-                ✍️ Adicionar Novo Lançamento
+                {editTransactionId ? "Editar Lançamento" : "Novo Lançamento"}
               </h3>
               <button 
-                onClick={() => setShowAddForm(false)}
+                onClick={handleCloseAddForm}
                 className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
@@ -446,7 +490,7 @@ export default function TransactionsPage() {
                         : 'border-border bg-transparent text-muted-foreground hover:bg-muted'
                     }`}
                   >
-                    💸 Despesa Real
+                    Despesa Real
                   </button>
                   <button
                     type="button"
@@ -457,7 +501,7 @@ export default function TransactionsPage() {
                         : 'border-border bg-transparent text-muted-foreground hover:bg-muted'
                     }`}
                   >
-                    💰 Receita Real
+                    Receita Real
                   </button>
                   <button
                     type="button"
@@ -468,7 +512,7 @@ export default function TransactionsPage() {
                         : 'border-border bg-transparent text-muted-foreground hover:bg-muted'
                     }`}
                   >
-                    🔮 Ganho Previsto
+                    Ganho Previsto
                   </button>
                 </div>
               </div>
@@ -482,7 +526,7 @@ export default function TransactionsPage() {
                     placeholder="Ex: Assinatura Netflix"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground"
+                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground font-semibold"
                     required
                     autoFocus
                   />
@@ -510,7 +554,7 @@ export default function TransactionsPage() {
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground"
+                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground font-semibold"
                     required
                   />
                 </div>
@@ -572,7 +616,7 @@ export default function TransactionsPage() {
               <div className="pt-3 border-t border-border flex justify-end gap-2.5 select-none">
                 <button 
                   type="button" 
-                  onClick={() => setShowAddForm(false)} 
+                  onClick={handleCloseAddForm} 
                   className="px-4 py-2 border border-border hover:bg-muted rounded-xl font-bold cursor-pointer"
                 >
                   Cancelar
@@ -581,7 +625,7 @@ export default function TransactionsPage() {
                   type="submit" 
                   className="px-5 py-2 bg-accent hover:bg-accent/90 text-white rounded-xl font-bold shadow-sm transition-all cursor-pointer"
                 >
-                  Confirmar
+                  {editTransactionId ? "Salvar Alterações" : "Confirmar"}
                 </button>
               </div>
             </form>

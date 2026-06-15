@@ -11,7 +11,8 @@ import {
   Trash2, 
   X,
   Sparkles,
-  ChevronRight
+  ChevronRight,
+  Edit2
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -20,6 +21,7 @@ export default function CaixinhasPage() {
     caixinhas, 
     addCaixinha, 
     deleteCaixinha, 
+    updateCaixinha,
     depositToCaixinha, 
     withdrawFromCaixinha, 
     transferBetweenCaixinhas, 
@@ -35,8 +37,9 @@ export default function CaixinhasPage() {
   const [selectedBoxId, setSelectedBoxId] = useState<string>('');
   const [targetBoxId, setTargetBoxId] = useState<string>('');
   const [amount, setAmount] = useState<string>('');
+  const [editBoxId, setEditBoxId] = useState<string | null>(null);
 
-  // Create caixinha form state
+  // Create/Edit caixinha form state
   const [newName, setNewName] = useState('');
   const [newIcon, setNewIcon] = useState('🌸');
   const [newColor, setNewColor] = useState('#FFB7C5');
@@ -57,9 +60,19 @@ export default function CaixinhasPage() {
 
   const handleOpenAction = (modalType: 'deposit' | 'withdraw' | 'transfer', boxId: string) => {
     setSelectedBoxId(boxId);
-    setManageBoxId(null); // close the management modal
+    setManageBoxId(null);
     setActiveModal(modalType);
     setAmount('');
+  };
+
+  const handleStartEdit = (box: any) => {
+    setEditBoxId(box.id);
+    setNewName(box.name);
+    setNewTarget(box.target_value.toString());
+    setNewIcon(box.icon);
+    setNewColor(box.color);
+    setManageBoxId(null); // close management menu
+    setActiveModal('create'); // open standard form
   };
 
   const handleCloseModal = () => {
@@ -67,6 +80,7 @@ export default function CaixinhasPage() {
     setSelectedBoxId('');
     setTargetBoxId('');
     setAmount('');
+    setEditBoxId(null);
     // reset create box form
     setNewName('');
     setNewIcon('🌸');
@@ -80,13 +94,26 @@ export default function CaixinhasPage() {
       alert('Preencha todos os campos.');
       return;
     }
-    addCaixinha({
-      name: newName,
-      icon: newIcon,
-      color: newColor,
-      current_value: 0,
-      target_value: parseFloat(newTarget)
-    });
+
+    if (editBoxId) {
+      updateCaixinha({
+        id: editBoxId,
+        name: newName,
+        icon: newIcon,
+        color: newColor,
+        current_value: caixinhas.find(c => c.id === editBoxId)?.current_value || 0,
+        target_value: parseFloat(newTarget)
+      });
+    } else {
+      addCaixinha({
+        name: newName,
+        icon: newIcon,
+        color: newColor,
+        current_value: 0,
+        target_value: parseFloat(newTarget)
+      });
+    }
+    
     handleCloseModal();
     confetti({
       particleCount: 50,
@@ -154,7 +181,7 @@ export default function CaixinhasPage() {
       
       {/* Header with Quick Totals */}
       <div className="bg-card border border-border p-5 rounded-3xl shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex gap-6">
+        <div className="flex gap-6 select-none">
           <div className="space-y-0.5">
             <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block">Total Guardado</span>
             <span className="text-xl font-extrabold text-accent">{displayBRL(totalSaved)}</span>
@@ -174,19 +201,6 @@ export default function CaixinhasPage() {
         </button>
       </div>
 
-      {/* Insight Banner */}
-      <div className="bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 p-4 rounded-3xl flex items-center justify-between shadow-sm select-none">
-        <div className="flex items-center gap-3">
-          <span className="text-2xl animate-float">🌸</span>
-          <div className="space-y-0.5">
-            <span className="text-[10px] font-extrabold text-accent uppercase tracking-wider block">Meta Consolidada</span>
-            <p className="text-xs text-muted-foreground">
-              Seu dinheiro guardado já representa **{((totalSaved / 96000) * 100).toFixed(0)}%** da sua meta consolidada de R$ 96.000,00.
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* Caixinhas Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {caixinhas.map((box) => {
@@ -199,8 +213,8 @@ export default function CaixinhasPage() {
               <div className="space-y-4">
                 <div className="flex justify-between items-start">
                   <div 
-                    className="w-10 h-10 rounded-2xl flex items-center justify-center text-xl shadow-sm"
-                    style={{ backgroundColor: `${box.color}20`, border: `1px solid ${box.color}40` }}
+                    className="w-10 h-10 rounded-2xl flex items-center justify-center text-xl shadow-sm bg-muted/45 border border-border/40"
+                    style={{ borderLeftColor: box.color, borderLeftWidth: '3px' }}
                   >
                     {box.icon}
                   </div>
@@ -242,7 +256,7 @@ export default function CaixinhasPage() {
                 onClick={() => setManageBoxId(box.id)}
                 className="mt-4 w-full py-2 bg-muted/40 hover:bg-muted text-accent font-bold rounded-xl text-xs flex items-center justify-center gap-1 transition-colors cursor-pointer"
               >
-                <span>Gerenciar Caixinha</span>
+                <span>Gerenciar</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -251,9 +265,8 @@ export default function CaixinhasPage() {
 
         {caixinhas.length === 0 && (
           <div className="col-span-full bg-card border border-border p-12 text-center rounded-3xl text-muted-foreground shadow-sm">
-            <span className="block text-2xl mb-2">🌸</span>
-            <p className="text-sm font-semibold">Nenhuma caixinha criada.</p>
-            <p className="text-xs mt-1">Crie caixinhas para organizar suas economias por objetivo.</p>
+            <p className="text-sm font-semibold">Nenhuma caixinha de economia criada.</p>
+            <p className="text-xs mt-1">Crie caixinhas para organizar seu dinheiro por metas específicas.</p>
           </div>
         )}
       </div>
@@ -264,7 +277,7 @@ export default function CaixinhasPage() {
           <div className="bg-card border border-border w-full max-w-sm rounded-3xl shadow-xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-5 border-b border-border flex justify-between items-center bg-muted/20 select-none">
               <h3 className="font-extrabold text-sm text-foreground">
-                🌸 Gerenciar Caixinha
+                Gerenciar Caixinha
               </h3>
               <button onClick={() => setManageBoxId(null)} className="p-1 rounded-lg hover:bg-muted text-muted-foreground cursor-pointer">
                 <X className="w-4.5 h-4.5" />
@@ -276,7 +289,7 @@ export default function CaixinhasPage() {
                 <span className="text-3xl block mb-1">💼</span>
                 <h4 className="font-black text-sm text-foreground">{manageBoxName}</h4>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Saldo: {displayBRL(caixinhas.find(c => c.id === manageBoxId)?.current_value || 0)}
+                  Saldo atual: {displayBRL(caixinhas.find(c => c.id === manageBoxId)?.current_value || 0)}
                 </p>
               </div>
 
@@ -310,6 +323,17 @@ export default function CaixinhasPage() {
                   <span className="flex items-center gap-2">
                     <ArrowLeftRight className="w-4 h-4 text-accent" />
                     <span>Transferir para outra Caixinha</span>
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </button>
+
+                <button
+                  onClick={() => handleStartEdit(caixinhas.find(c => c.id === manageBoxId)!)}
+                  className="w-full p-3 bg-muted/20 hover:bg-muted border border-border/60 text-foreground font-bold rounded-2xl text-xs flex items-center justify-between transition-colors cursor-pointer"
+                >
+                  <span className="flex items-center gap-2">
+                    <Edit2 className="w-4 h-4 text-amber-500" />
+                    <span>Editar Configurações</span>
                   </span>
                   <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 </button>
@@ -398,8 +422,8 @@ export default function CaixinhasPage() {
         <div className="fixed inset-0 bg-black/45 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
           <div className="bg-card border border-border w-full max-w-sm rounded-3xl shadow-xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-4 border-b border-border flex justify-between items-center bg-muted/20 select-none">
-              <h3 className="font-bold text-xs flex items-center gap-1.5 text-foreground">
-                <ArrowLeftRight className="w-4 h-4 text-accent" /> Transferir de: {selectedBoxName}
+              <h3 className="font-bold text-xs flex items-center gap-1.5 text-accent">
+                <ArrowLeftRight className="w-4 h-4" /> Transferir de: {selectedBoxName}
               </h3>
               <button onClick={handleCloseModal} className="p-1 rounded-lg hover:bg-muted text-muted-foreground cursor-pointer"><X className="w-4 h-4" /></button>
             </div>
@@ -444,12 +468,14 @@ export default function CaixinhasPage() {
         </div>
       )}
 
-      {/* Create Modal */}
+      {/* Create / Edit Modal */}
       {activeModal === 'create' && (
         <div className="fixed inset-0 bg-black/45 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
           <div className="bg-card border border-border w-full max-w-sm rounded-3xl shadow-xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-4 border-b border-border flex justify-between items-center bg-muted/20 select-none">
-              <h3 className="font-bold text-xs text-foreground">🌸 Criar Nova Caixinha</h3>
+              <h3 className="font-bold text-xs text-foreground">
+                {editBoxId ? "Editar Caixinha" : "Criar Nova Caixinha"}
+              </h3>
               <button onClick={handleCloseModal} className="p-1 rounded-lg hover:bg-muted text-muted-foreground cursor-pointer"><X className="w-4 h-4" /></button>
             </div>
             <form onSubmit={handleCreate} className="p-5 space-y-4">
@@ -460,7 +486,7 @@ export default function CaixinhasPage() {
                   placeholder="Ex: Reserva de Emergência"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground"
+                  className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground font-semibold"
                   required
                   autoFocus
                 />
@@ -518,7 +544,9 @@ export default function CaixinhasPage() {
 
               <div className="pt-2 flex justify-end gap-2.5 select-none">
                 <button type="button" onClick={handleCloseModal} className="px-4 py-2 border border-border hover:bg-muted rounded-xl text-xs font-semibold cursor-pointer">Cancelar</button>
-                <button type="submit" className="px-4 py-2 bg-accent hover:bg-accent/90 text-white rounded-xl text-xs font-bold shadow-sm cursor-pointer">Criar</button>
+                <button type="submit" className="px-4 py-2 bg-accent hover:bg-accent/90 text-white rounded-xl text-xs font-bold shadow-sm cursor-pointer">
+                  {editBoxId ? "Salvar Alterações" : "Criar"}
+                </button>
               </div>
             </form>
           </div>

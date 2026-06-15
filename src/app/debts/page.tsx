@@ -6,12 +6,12 @@ import {
   CreditCard, 
   Plus, 
   Trash2, 
-  Sparkles, 
   Calendar, 
   ChevronDown,
   ChevronUp,
   CheckCircle,
-  X
+  X,
+  Edit2
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -20,6 +20,7 @@ export default function DebtsPage() {
     debts, 
     addDebt, 
     deleteDebt, 
+    updateDebt,
     payDebtInstallment, 
     dinheiroEmConta,
     showValues
@@ -28,6 +29,7 @@ export default function DebtsPage() {
   const [mounted, setMounted] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showSimulator, setShowSimulator] = useState(false);
+  const [editDebtId, setEditDebtId] = useState<string | null>(null);
 
   // Form inputs
   const [name, setName] = useState('');
@@ -57,8 +59,23 @@ export default function DebtsPage() {
   };
 
   const handleOpenModal = () => setIsModalOpen(true);
+
+  const handleStartEdit = (debt: any) => {
+    setEditDebtId(debt.id);
+    setName(debt.name);
+    setCreditor(debt.creditor);
+    setOriginalValue(debt.original_value.toString());
+    setCurrentValue(debt.current_value.toString());
+    setInterestRate(debt.interest_rate.toString());
+    setTotalInstallments(debt.total_installments.toString());
+    setRemainingInstallments(debt.remaining_installments.toString());
+    setDueDate(debt.due_date);
+    setIsModalOpen(true);
+  };
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setEditDebtId(null);
     resetForm();
   };
 
@@ -80,16 +97,30 @@ export default function DebtsPage() {
       return;
     }
 
-    addDebt({
-      name,
-      creditor,
-      original_value: parseFloat(originalValue),
-      current_value: parseFloat(currentValue),
-      interest_rate: interestRate ? parseFloat(interestRate) : 0,
-      total_installments: parseInt(totalInstallments),
-      remaining_installments: parseInt(remainingInstallments),
-      due_date: dueDate
-    });
+    if (editDebtId) {
+      updateDebt({
+        id: editDebtId,
+        name,
+        creditor,
+        original_value: parseFloat(originalValue),
+        current_value: parseFloat(currentValue),
+        interest_rate: interestRate ? parseFloat(interestRate) : 0,
+        total_installments: parseInt(totalInstallments),
+        remaining_installments: parseInt(remainingInstallments),
+        due_date: dueDate
+      });
+    } else {
+      addDebt({
+        name,
+        creditor,
+        original_value: parseFloat(originalValue),
+        current_value: parseFloat(currentValue),
+        interest_rate: interestRate ? parseFloat(interestRate) : 0,
+        total_installments: parseInt(totalInstallments),
+        remaining_installments: parseInt(remainingInstallments),
+        due_date: dueDate
+      });
+    }
 
     handleCloseModal();
     confetti({
@@ -133,7 +164,7 @@ export default function DebtsPage() {
       
       {/* Header with quick stats */}
       <div className="bg-card border border-border p-5 rounded-3xl shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex gap-6">
+        <div className="flex gap-6 select-none">
           <div className="space-y-0.5">
             <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block">Total Devedor</span>
             <span className="text-xl font-extrabold text-accent">{displayBRL(totalCurrent)}</span>
@@ -147,7 +178,7 @@ export default function DebtsPage() {
 
         <button 
           onClick={handleOpenModal}
-          className="px-4 py-2 bg-accent hover:bg-accent/90 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all hover:scale-103 cursor-pointer"
+          className="px-4 py-2 bg-accent hover:bg-accent/90 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all hover:scale-103 cursor-pointer animate-fade-in"
         >
           <Plus className="w-4 h-4" /> Nova Dívida
         </button>
@@ -155,7 +186,7 @@ export default function DebtsPage() {
 
       {/* Progress & Insight Bar */}
       <div className="bg-card border border-border p-5 rounded-3xl shadow-sm space-y-3.5">
-        <div className="flex justify-between items-center text-xs font-bold text-muted-foreground">
+        <div className="flex justify-between items-center text-xs font-bold text-muted-foreground select-none">
           <span>PROCESSO GERAL DE QUITAÇÃO</span>
           <span className="text-accent">{generalProgress.toFixed(0)}% Concluído</span>
         </div>
@@ -166,33 +197,18 @@ export default function DebtsPage() {
             style={{ width: `${generalProgress}%` }}
           />
         </div>
-
-        {/* Compact Helozinha Insight Banner */}
-        <div className="flex items-center gap-3 bg-muted/20 p-3 rounded-2xl select-none">
-          <span className="text-xl animate-float">🌸</span>
-          <div className="space-y-0.5">
-            <span className="text-[9px] font-extrabold text-accent uppercase tracking-wider block">Análise da Helozinha</span>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              {debts.length === 0 
-                ? "Parabéns, Helo! Nenhuma dívida ativa cadastrada. Foco total em caixinhas e investimentos!"
-                : `Se poupar R$ ${monthlyAllotment} mensais para quitação acelerada, estará livre de todas em cerca de ${monthsToPayoff} meses.`
-              }
-            </p>
-          </div>
-        </div>
       </div>
 
       {/* Active Debts Grid */}
       <div className="space-y-4">
-        <h3 className="font-extrabold text-base tracking-tight flex items-center gap-2">
-          📋 Suas Dívidas Ativas ({debts.length})
+        <h3 className="font-extrabold text-base tracking-tight flex items-center gap-2 select-none">
+          Suas Dívidas Ativas ({debts.length})
         </h3>
         
         {debts.length === 0 ? (
-          <div className="bg-card border border-border p-12 text-center rounded-3xl shadow-sm text-muted-foreground">
+          <div className="bg-card border border-border p-12 text-center rounded-3xl shadow-sm text-muted-foreground select-none">
             <CheckCircle className="w-10 h-10 text-primary mx-auto mb-2" />
-            <p className="text-sm font-semibold">Tudo quitado! Nenhuma dívida ativa no momento. 🎉</p>
-            <p className="text-xs mt-1">Clique em "Nova Dívida" se precisar parcelar compras de longo prazo.</p>
+            <p className="text-sm font-semibold">Tudo quitado! Nenhuma dívida ativa no momento.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -210,13 +226,23 @@ export default function DebtsPage() {
                       </span>
                       <h4 className="font-extrabold text-sm text-foreground block">{debt.name}</h4>
                     </div>
-                    <button 
-                      onClick={() => deleteDebt(debt.id)}
-                      className="opacity-0 group-hover:opacity-100 p-1.5 text-muted-foreground hover:text-red-500 rounded-lg hover:bg-muted transition-all cursor-pointer"
-                      title="Excluir dívida"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    
+                    <div className="flex gap-1">
+                      <button 
+                        onClick={() => handleStartEdit(debt)}
+                        className="opacity-0 group-hover:opacity-100 p-1.5 text-muted-foreground hover:text-accent rounded-lg hover:bg-muted transition-all cursor-pointer"
+                        title="Editar dívida"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => deleteDebt(debt.id)}
+                        className="opacity-0 group-hover:opacity-100 p-1.5 text-muted-foreground hover:text-red-500 rounded-lg hover:bg-muted transition-all cursor-pointer"
+                        title="Excluir dívida"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
 
                   {/* Clean stats row */}
@@ -268,120 +294,13 @@ export default function DebtsPage() {
         )}
       </div>
 
-      {/* Collapsible payoff simulator */}
-      {debts.length > 0 && (
-        <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-sm">
-          {/* Header Toggle */}
-          <button
-            onClick={() => setShowSimulator(!showSimulator)}
-            className="w-full p-5 flex items-center justify-between bg-muted/20 border-b border-border/50 hover:bg-muted/30 transition-all font-extrabold text-sm text-foreground select-none cursor-pointer"
-          >
-            <span className="flex items-center gap-1.5">
-              🧠 Simulador de Quitação Inteligente (Avalanche vs Bola de Neve)
-            </span>
-            {showSimulator ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          </button>
-
-          {showSimulator && (
-            <div className="p-6 space-y-6 text-xs animate-in fade-in slide-in-from-top-3 duration-200">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                
-                {/* Inputs */}
-                <div className="space-y-4">
-                  <div className="space-y-2 select-none">
-                    <label className="font-bold text-muted-foreground uppercase text-[9px] tracking-wider flex justify-between">
-                      <span>Aporte Mensal Extra</span>
-                      <span className="text-accent font-semibold">{formatBRL(monthlyAllotment)}</span>
-                    </label>
-                    <input 
-                      type="range" 
-                      min="100" 
-                      max="5000" 
-                      step="50"
-                      value={monthlyAllotment} 
-                      onChange={(e) => setMonthlyAllotment(parseInt(e.target.value))}
-                      className="w-full accent-accent bg-muted h-1.5 rounded-lg cursor-pointer"
-                    />
-                  </div>
-
-                  <div className="space-y-2 select-none">
-                    <label className="font-bold text-muted-foreground uppercase text-[9px] tracking-wider block">Método de Quitação</label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        onClick={() => setPlanningMethod('avalanche')}
-                        className={`p-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-                          planningMethod === 'avalanche' 
-                            ? 'border-accent bg-accent/5 text-accent' 
-                            : 'border-border bg-transparent text-muted-foreground hover:bg-muted'
-                        }`}
-                      >
-                        🏔️ Avalanche
-                      </button>
-                      <button
-                        onClick={() => setPlanningMethod('snowball')}
-                        className={`p-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-                          planningMethod === 'snowball' 
-                            ? 'border-accent bg-accent/5 text-accent' 
-                            : 'border-border bg-transparent text-muted-foreground hover:bg-muted'
-                        }`}
-                      >
-                        ❄️ Bola de Neve
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Projections Display */}
-                <div className="md:col-span-2 p-5 bg-muted/20 border border-border/80 rounded-2xl grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Tempo Estimado p/ Quitação</span>
-                    <span className="text-xl font-black text-foreground block">
-                      {debts.length === 0 ? '0' : `${monthsToPayoff} meses`}
-                    </span>
-                    <span className="text-[10px] text-muted-foreground block">
-                      {monthsToPayoff > 0 
-                        ? `Previsão: ${new Date(new Date().setMonth(new Date().getMonth() + monthsToPayoff)).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}`
-                        : 'Sem parcelamentos pendentes.'
-                      }
-                    </span>
-                  </div>
-
-                  <div className="space-y-1">
-                    <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Economia de Juros Estimada</span>
-                    <span className="text-xl font-black text-green-600 dark:text-green-400 block">
-                      {debts.length === 0 || interestSaved <= 0 ? 'R$ 0,00' : formatBRL(interestSaved)}
-                    </span>
-                    <span className="text-[10px] text-muted-foreground block">
-                      Em comparação ao pagamento mínimo das parcelas.
-                    </span>
-                  </div>
-
-                  <div className="sm:col-span-2 pt-3 border-t border-border/50 text-[11px] text-muted-foreground">
-                    {planningMethod === 'avalanche' ? (
-                      <span>
-                        <strong>🏔️ Método Avalanche:</strong> Foca em liquidar primeiro a dívida de <strong>juros mais altos</strong> (ex: {debts.sort((a,b) => b.interest_rate - a.interest_rate)[0]?.name || 'Empréstimos'}). Este é o método matematicamente mais vantajoso, pois reduz o pagamento total de juros.
-                      </span>
-                    ) : (
-                      <span>
-                        <strong>❄️ Método Bola de Neve:</strong> Foca em liquidar primeiro a dívida de <strong>menor valor absoluto</strong> (ex: {debts.sort((a,b) => a.current_value - b.current_value)[0]?.name || 'Fatura'}). Este método visa a motivação psicológica rápida, eliminando contas uma a uma de forma veloz.
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Add Debt Modal */}
+      {/* Add / Edit Debt Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/45 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
           <div className="bg-card border border-border w-full max-w-lg rounded-3xl shadow-xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-5 border-b border-border flex justify-between items-center bg-muted/20 select-none">
               <h3 className="font-extrabold text-sm flex items-center gap-1.5 text-accent">
-                💸 Cadastrar Nova Dívida / Financiamento
+                {editDebtId ? "Editar Dívida" : "Cadastrar Nova Dívida"}
               </h3>
               <button 
                 onClick={handleCloseModal}
@@ -400,7 +319,7 @@ export default function DebtsPage() {
                     placeholder="Ex: Financiamento Carro"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground"
+                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground font-semibold"
                     required
                     autoFocus
                   />
@@ -412,7 +331,7 @@ export default function DebtsPage() {
                     placeholder="Ex: Santander"
                     value={creditor}
                     onChange={(e) => setCreditor(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground"
+                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground font-semibold"
                     required
                   />
                 </div>
@@ -483,7 +402,7 @@ export default function DebtsPage() {
                     type="date"
                     value={dueDate}
                     onChange={(e) => setDueDate(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground"
+                    className="w-full p-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:border-accent text-foreground font-semibold"
                     required
                   />
                 </div>
@@ -502,7 +421,7 @@ export default function DebtsPage() {
                   type="submit"
                   className="px-5 py-2 bg-accent hover:bg-accent/90 text-white rounded-xl font-bold shadow-sm transition-all cursor-pointer"
                 >
-                  Salvar
+                  {editDebtId ? "Salvar Alterações" : "Salvar"}
                 </button>
               </div>
             </form>

@@ -58,12 +58,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   const menuItems = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-    { name: 'Dívidas & Planejamento', href: '/debts', icon: CreditCard },
+    { name: 'Dívidas', href: '/debts', icon: CreditCard },
     { name: 'Caixinhas', href: '/caixinhas', icon: PiggyBank },
     { name: 'Transações', href: '/transactions', icon: TrendingUp },
-    { name: 'Contas e Extratos', href: '/bank-integration', icon: Landmark },
+    { name: 'Integrações', href: '/bank-integration', icon: Landmark },
     { name: 'Calendário', href: '/calendar', icon: Calendar },
-    { name: 'Helozinha ❤️', href: '/helozinha', icon: Sparkles },
+    { name: 'Assistente Virtual', href: '/helozinha', icon: Sparkles },
   ];
 
   const unreadCount = notifications.filter(n => !n.read).length;
@@ -74,13 +74,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex md:flex-col md:w-64 lg:w-72 bg-card border-r border-border shrink-0 transition-colors duration-300">
         {/* Brand */}
-        <div className="p-6 border-b border-border flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white text-xl shadow-md animate-heartbeat">
-            ❤️
+        <div className="p-6 border-b border-border flex items-center gap-3 select-none">
+          <div className="w-9 h-9 rounded-xl bg-accent flex items-center justify-center text-white text-sm font-bold shadow-sm">
+            HF
           </div>
           <div>
-            <h1 className="font-bold text-lg leading-tight tracking-tight">Helo Finanças</h1>
-            <span className="text-xs text-muted-foreground">Controle Pessoal</span>
+            <h1 className="font-bold text-sm leading-none tracking-tight text-foreground">Helo Finanças</h1>
+            <span className="text-[10px] text-muted-foreground">Gestão Pessoal</span>
           </div>
         </div>
 
@@ -147,8 +147,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               {menuItems.find(item => item.href === pathname)?.name || 'Controle Financeiro'}
             </h2>
             <div className="md:hidden flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-accent flex items-center justify-center text-white text-xs">❤️</span>
-              <span className="font-bold text-sm">Helo ❤️</span>
+              <span className="w-6 h-6 rounded-lg bg-accent flex items-center justify-center text-white text-[10px] font-extrabold shadow-sm">HF</span>
+              <span className="font-bold text-xs">Helo Finanças</span>
             </div>
           </div>
 
@@ -193,7 +193,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                   <div className="max-h-80 overflow-y-auto divide-y divide-border">
                     {notifications.length === 0 ? (
                       <div className="p-8 text-center text-muted-foreground text-xs">
-                        Nenhuma notificação por aqui. 🌸
+                        Nenhuma notificação por aqui.
                       </div>
                     ) : (
                       notifications.map((notif) => (
@@ -203,9 +203,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                         >
                           <div className="flex justify-between items-start gap-2">
                             <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                              {notif.type === 'warning' && '⚠️'}
-                              {notif.type === 'success' && '🌸'}
-                              {notif.type === 'info' && '💎'}
                               {notif.title}
                             </h4>
                             {!notif.read && (
@@ -291,9 +288,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           >
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-white text-sm shadow">❤️</span>
-                  <span className="font-bold text-lg">Menu Helo</span>
+                <div className="flex items-center gap-2 select-none">
+                  <span className="w-7 h-7 rounded-lg bg-accent flex items-center justify-center text-white text-xs font-bold shadow-sm">HF</span>
+                  <span className="font-bold text-sm text-foreground">Menu</span>
                 </div>
                 <button 
                   onClick={() => setMobileMenuOpen(false)}
@@ -350,7 +347,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <div className="bg-card border border-border w-full max-w-md rounded-3xl shadow-xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
             <div className="p-5 border-b border-border flex justify-between items-center bg-muted/20">
               <h3 className="font-extrabold text-base flex items-center gap-1.5 text-accent">
-                🌸 Configurações do Perfil
+                Configurações do Perfil
               </h3>
               <button 
                 onClick={() => setShowProfileSettings(false)}
@@ -397,7 +394,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 className="space-y-4"
               >
                 <div className="space-y-1.5">
-                  <label className="font-bold text-muted-foreground">Nome da Helo (Seu Nome)</label>
+                  <label className="font-bold text-muted-foreground">Seu Nome</label>
                   <input 
                     type="text"
                     value={profileName}
@@ -447,14 +444,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
               <div className="border-t border-border pt-5 space-y-4">
                 <h4 className="font-extrabold text-sm text-foreground flex items-center gap-1.5">
-                  💾 Backup & Transferência de Dados
+                  Backup & Transferência de Dados
                 </h4>
                 <p className="text-[11px] text-muted-foreground leading-relaxed">
                   Exporte todo o seu histórico financeiro (contas, caixinhas, dívidas, metas e transações) em um arquivo JSON para transferir de dispositivo sem perder nenhum dado.
                 </p>
 
-                <div className="grid grid-cols-2 gap-3 pt-1">
-                  <button 
+                             <button 
                     type="button"
                     onClick={() => {
                       const jsonStr = exportState();
@@ -467,14 +463,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                     }}
                     className="py-3 px-4 border border-border hover:bg-muted font-bold rounded-xl transition-all text-center flex flex-col items-center justify-center gap-1 hover:border-primary/50 text-foreground"
                   >
-                    <span className="text-lg">📤</span>
                     <span>Exportar Backup</span>
                   </button>
-
+ 
                   <label 
                     className="py-3 px-4 border border-border hover:bg-muted font-bold rounded-xl transition-all text-center flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-primary/50 text-foreground"
                   >
-                    <span className="text-lg">📥</span>
+                    <span>Importar Backup</span>�</span>
                     <span>Importar Backup</span>
                     <input 
                       type="file"
